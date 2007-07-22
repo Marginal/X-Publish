@@ -40,6 +40,6 @@ zip -r X-Publish_%VER%_mac.zip X-Publish.app |findstr -vc:"adding:"
 @REM win32
 "C:\Program Files\Python24\python.exe" -OO win32\setup.py -q py2exe
 "C:\Program Files\NSIS\makensis.exe" /nocd /v2 win32\X-Publish.nsi
-rd  /s /q build
+REM rd  /s /q build
 
 :end
