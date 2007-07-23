@@ -91,8 +91,8 @@ if acf:
                 if thing[-4:].lower() in ['.bmp','.png','.txt']:
                     secondary[unicodeify(join(path,thing)[l:])]=['?']
 
-    if exists(join(folder,'plane.txt')) and exists(join(folder,'plane.jpg')):
-        misc['plane.jpg']=['plane.txt']
+    #if exists(join(folder,'plane.txt')) and exists(join(folder,'plane.jpg')):
+    #    misc['plane.jpg']=['plane.txt']
                 
 else:
     # get names so we don't complain about use of library objects
