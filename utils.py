@@ -15,8 +15,12 @@ if platform=='win32':# or platform=='darwin':
     import wx	# tkFileDialog can't handle non-ascii directories
     app=wx.PySimpleApp()
 elif platform=='darwin':
-    from EasyDialogs import AskFolder, ProgressBar
-    import tkMessageBox
+    from EasyDialogs import AskFolder, Message, ProgressBar
+    try:
+        import __main__
+        import tkMessageBox	# not on Panther
+    except:
+        pass
 else:
     import Tkinter, tkMessageBox, tkFileDialog
     app=Tkinter.Tk()
@@ -92,8 +96,10 @@ else:	# no progress dialog in tk
 def die(message):
     if platform=='win32':
         wx.MessageBox(message, appname, wx.ICON_ERROR|wx.OK)
-    else:
+    elif 'tkMessageBox' in dir(__main__):
         tkMessageBox._show("Error", message, icon="question", type="ok")
+    else:	# Panther
+        Message(message.encode('utf-8'))	# only does ASCII
     exit(1)
 
 
