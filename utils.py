@@ -99,7 +99,7 @@ def die(message):
     elif 'tkMessageBox' in dir(__main__):
         tkMessageBox._show("Error", message, icon="question", type="ok")
     else:	# Panther
-        Message(message.encode('utf-8'))	# only does ASCII
+        Message(message.encode('ascii','replace'))	# only does ASCII
     exit(1)
 
 
