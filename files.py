@@ -162,17 +162,14 @@ def parselib(folder, secondary, missing, names, f, parent):
         if not h.readline().split()[0]=='LIBRARY':
             raise IOError
         for line in h:
-            line=line.strip()
-            l=min(line.find(' '), line.find('\t'))
-            if l<0: continue
-            cmd=line[:l]
-            line=line[l:].strip()
+            line=line.split('#')[0].strip()
+            if not line: continue
+            cmd=line.split()[0]
+            line=line[len(cmd):].strip()
             if cmd in ['EXPORT', 'EXPORT_RATIO', 'EXPORT_EXTEND', 'EXPORT_BACKUP']:
                 if cmd=='EXPORT_RATIO':
-                    l=min(line.find(' '), line.find('\t'))
-                    line=line[l:].strip()
-                l=min(line.find(' '), line.find('\t'))
-                line=line[l:].strip()
+                    line=line[len(line.split()[0]):].strip()
+                line=line[len(line.split()[0]):].strip()
                 obj=casepath(folder, unicodeify(line.replace(':','/')))
                 if obj not in secondary:
                     if not obj[-4:].lower() in ['.bmp', '.png']:
@@ -280,13 +277,13 @@ def parseobj(folder, secondary, missing, names, f, parent):
 
         else:
             kind=h.readline().split()[0]
-            if not kind in ['FACADE','FOREST','LINE_PAINT','ROADS','OBJ','DRAPED_POLYGON','OBJECT_STRING','TERRAIN']:
+            if not kind in ['BEACH','FACADE','FOREST','LINE_PAINT','ROADS','OBJ','DRAPED_POLYGON','OBJECT_STRING','TERRAIN']:
                 raise IOError
             for line in h:
                 c=line.split('#')[0].split('//')[0].split()
                 if not c: continue
                 if kind=='OBJ' and c[0]=='POINT_COUNTS': break	# early exit
-                if c[0] in ['TEXTURE','TEXTURE_LIT'] or (kind=='DRAPED_POLYGON' and c[0] in ['TEXTURE_NOWRAP','TEXTURE_LIT_NOWRAP']) or (kind=='TERRAIN' and c[0] in ['BASE_TEX','BASE_TEX_NOWRAP','LIT_TEX','LIT_TEX_NOWRAP','BORDER_TEX','BORDER_TEX_NOWRAP','COMPOSITE_TEX','COMPOSITE_TEX_NOWRAP']):
+                if c[0] in ['TEXTURE','TEXTURE_LIT'] or (kind=='BEACH' and c[0] in ['BASE_TEX','LIT_TEX']) or (kind=='DRAPED_POLYGON' and c[0] in ['TEXTURE_NOWRAP','TEXTURE_LIT_NOWRAP']) or (kind=='TERRAIN' and c[0] in ['BASE_TEX','BASE_TEX_NOWRAP','LIT_TEX','LIT_TEX_NOWRAP','BORDER_TEX','BORDER_TEX_NOWRAP','COMPOSITE_TEX','COMPOSITE_TEX_NOWRAP']):
                     tex=line.strip()[len(c[0]):].strip()
                     if kind=='OBJ' and '//' in tex: tex=tex[:tex.index('//')].strip()
                     tex=unicodeify(tex.replace(':','/'))

@@ -65,6 +65,10 @@ if platform=='win32':
     class Progress(wx.ProgressDialog):
         def __init__(self, message):
             wx.ProgressDialog.__init__(self, appname, message, 105, None, wx.PD_SMOOTH)
+            # wx.PD_CAN_ABORT is unresponsive (no event loop?)
+            # hack to make wider:
+            (x,y)=self.GetClientSize()
+            self.SetClientSize((x+x/2,y))
             self.Update(1)	# show some progress
 
         def update(self, message, newval):
