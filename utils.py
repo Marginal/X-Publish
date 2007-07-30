@@ -150,11 +150,7 @@ def viewer(filename):
     except:
         pass
 
-def dosection(h, heading, folder, files, doref, err=False):
-    if err:
-        col='tomato'
-    else:
-        col='lightskyblue'
+def dosection(h, heading, folder, files, doref, col):
     h.write('    <tr>\n'
             '      <th style="background-color: %s;">%s</th>\n' % (col, heading))
     if doref:

@@ -1,6 +1,6 @@
 from glob import glob
 from os import listdir, unlink, walk
-from os.path import basename, dirname, exists, join, pardir, sep
+from os.path import basename, dirname, exists, isdir, join, pardir, sep
 from sys import argv, exit
 from urllib import quote
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -22,16 +22,16 @@ except:
 
 progress=Progress('Analysing')
 
-l=len(folder)+1
+flen=len(folder)+1
 
-acf=dict([(unicodeify(f[l:]),[None]) for f in glob(join(folder, '*.[aA][cC][fF]'))])
+acf=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '*.[aA][cC][fF]'))])
 
-lib=dict([(unicodeify(f[l:]),[None]) for f in glob(join(folder, '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]'))])
-apt=dict([(unicodeify(f[l:]),[None]) for f in glob(join(folder, '[eE][aA][rR][tT][hH] [nN][aA][vV] [dD][aA][tT][aA]', '[aA][pP][tT].[dD][aA][tT]'))])
-dsf=dict([(unicodeify(f[l:]),[None]) for f in glob(join(folder, '[eE][aA][rR][tT][hH] [nN][aA][vV] [dD][aA][tT][aA]', '[+-][0-9]0[+-][01][0-9]0', '[+-][0-9][0-9][+-][01][0-9][0-9].[dD][sS][fF]'))])
+lib=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]'))])
+apt=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[eE][aA][rR][tT][hH] [nN][aA][vV] [dD][aA][tT][aA]', '[aA][pP][tT].[dD][aA][tT]'))])
+dsf=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[eE][aA][rR][tT][hH] [nN][aA][vV] [dD][aA][tT][aA]', '[+-][0-9]0[+-][01][0-9]0', '[+-][0-9][0-9][+-][01][0-9][0-9].[dD][sS][fF]'))])
 
-htm=dict([(unicodeify(f[l:]),[None]) for f in glob(join(folder, '*.[hH][tT][mM][lL]'))+glob(join(folder, '*.[hH][tT][mM]'))])
-txt=dict([(unicodeify(f[l:]),[None]) for f in glob(join(folder, '*.[tT][xX][tT]'))+glob(join(folder, '*.[pP][dD][fF]'))+glob(join(folder, '*.[jJ][pP][gG]'))+glob(join(folder, '*.[jJ][pP][eE][gG]'))+glob(join(folder, '*.[dD][oO][cC]'))+glob(join(folder, '*.[rR][tT][fF]'))])
+htm=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '*.[hH][tT][mM][lL]'))+glob(join(folder, '*.[hH][tT][mM]'))])
+txt=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '*.[tT][xX][tT]'))+glob(join(folder, '*.[pP][dD][fF]'))+glob(join(folder, '*.[jJ][pP][gG]'))+glob(join(folder, '*.[jJ][pP][eE][gG]'))+glob(join(folder, '*.[dD][oO][cC]'))+glob(join(folder, '*.[rR][tT][fF]'))])
 for f in lib.keys():
     if f in txt: txt.pop(f)	# don't list library.txt twice
 txt.pop('summary.txt',None)	# skip FS2XPlane summary
@@ -53,6 +53,7 @@ else:
 misc=dict(txt)
 misc.update(htm)
 secondary={}
+unused={}
 missing={}
 
 if acf:
@@ -63,13 +64,25 @@ if acf:
     for f in acf.keys():
         base=f[:-4]
         for thing in ['_paint', '_paint_lit', '_paint2', '_paint2_lit',
-                      '_panel', '_panel_b', '_panel_l', '_panel_lb', '_panel_lf', '_panel_r', '_panel_rb', '_panel_rf',
-                      '_test_linear', '_test_linear_lit', '_test_nearest', '_test_nearest_lit']:
+                      '_panel', '_panel_lit', '_panel-1','_panel-1_lit',
+                      '_panel_b', '_panel_l', '_panel_lb', '_panel_lf', '_panel_r', '_panel_rb', '_panel_rf',
+                      '_test_linear', '_test_linear_lit', '_test_nearest', '_test_nearest_lit',
+                      '_blend_linear', '_compass_rose', '_HSI_rose', '_prop', '_flame']:
             for ext in ['.png','.bmp']:
                 tex2=casepath(folder,base+thing+ext)
                 if exists(join(folder,tex2)):
                     secondary[tex2]=[f]
                     break
+            # liveries
+            for d in listdir(folder):
+                livdir=join(folder,d)
+                if not isdir(livdir): continue
+                for ext in ['.png','.bmp']:
+                    tex2=casepath(livdir,base+thing+ext)
+                    if exists(join(livdir,tex2)):
+                        secondary[join(livdir,tex2)[flen:]]=[f]
+                        break
+                    
         for thing in ['_cockpit.obj','_cockpit_INN.obj','_cockpit_OUT.obj']:
             obj=casepath(folder,base+thing)
             if exists(join(folder,obj)):
@@ -82,14 +95,14 @@ if acf:
         for path, dirs, files in walk(join(folder,sounds)):
             for thing in files:
                 if thing[-4:].lower()=='.wav':
-                    secondary[unicodeify(join(path,thing)[l:])]=['?']
+                    secondary[unicodeify(join(path,thing)[flen:])]=['?']
 
     cockpit=casepath(folder,'cockpit')
     if exists(join(folder,cockpit)):
         for path, dirs, files in walk(join(folder,cockpit)):
             for thing in files:
                 if thing[-4:].lower() in ['.bmp','.png','.txt']:
-                    secondary[unicodeify(join(path,thing)[l:])]=['?']
+                    secondary[unicodeify(join(path,thing)[flen:])]=['?']
 
     #if exists(join(folder,'plane.txt')) and exists(join(folder,'plane.jpg')):
     #    misc['plane.jpg']=['plane.txt']
@@ -122,6 +135,11 @@ for key in keys:
         if c in key.replace(sep,''):
             die("The filename %s \ncan't be stored in a .zip file. \n\nRename the file avoiding the characters \\/:*?\"<>| " % key)
 
+# unused
+for path, dirs, files in walk(folder):
+    for thing in files:
+        if thing[-4:].lower() in ['.acf', '.afl', '.bmp', '.dat', '.dsf', '.fac', '.for', '.lin', '.net', '.obj', '.pol', '.png', '.str', '.ter', '.txt', '.wav', '.wpn'] and join(path,thing)[flen:] not in keys:
+            unused[unicodeify(join(path,thing)[flen:])]=['?']
 
 # Do output
 
@@ -174,12 +192,13 @@ h.write('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n'
         '  <h1><a href="file:///%s">%s</a></h1>\n'
         '  <table width="100%%" border="0" cellpadding="2">\n' % (title, quote(zipname.encode('utf-8').replace('\\','/')), title))
 if acf:
-    dosection(h, 'Aircraft', folder, primary, False)
+    dosection(h, 'Aircraft', folder, primary, False, 'lightskyblue')
 else:
-    dosection(h, 'Primary files', folder, primary, False)
-if misc: dosection(h, 'Documentation', folder, misc, False)
-if secondary: dosection(h, 'Included files', folder, secondary, True)
-if missing: dosection(h, 'Missing or Unreadable', folder, missing, True, True)
+    dosection(h, 'Primary files', folder, primary, False, 'lightskyblue')
+if misc: dosection(h, 'Documentation', folder, misc, False, 'lightskyblue')
+if secondary: dosection(h, 'Included files', folder, secondary, True, 'lightskyblue')
+if unused: dosection(h, 'Unused X-Plane files', folder, unused, False, 'darkgray')
+if missing: dosection(h, 'Missing or Unreadable', folder, missing, True, 'tomato')
 h.write('  </table>\n'
         '</body>\n'
         '</html>\n')
