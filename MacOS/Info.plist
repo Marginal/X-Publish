@@ -19,7 +19,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.00</string>
+	<string>appversion</string>
 	<key>CFBundleGetInfoString</key>
 	<string>X-Publish appversion, © 2006 Jonathan Harris</string>
 </dict>
