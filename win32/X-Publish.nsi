@@ -33,15 +33,15 @@ Section "Install"
   File /r dist\*
   CreateShortCut "$SMPROGRAMS\X-Publish.lnk" "$INSTDIR\xpublish.exe"
 
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\X-Publish" "Contact" "x-plane@marginal.org.uk"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\X-Publish" "DisplayIcon" "$INSTDIR\X-Publish.exe,0"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\X-Publish" "DisplayName" "X-Publish"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\X-Publish" "DisplayVersion" "$%VERSION%"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\X-Publish" "InstallLocation" "$INSTDIR"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\X-Publish" "Publisher" "Jonathan Harris"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\X-Publish" "Publisher" "Jonathan Harris <x-plane@marginal.org.uk>"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\X-Publish" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\X-Publish" "NoRepair" 1
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\X-Publish" "UninstallString" "$INSTDIR\uninstall.exe"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\OverlayEditor" "URLInfoAbout" "mailto:Jonathan Harris <x-plane@marginal.org.uk>?subject=X-Publish $%VERSION%"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\X-Publish" "URLUpdateInfo" "http://marginal.org.uk/x-planescenery"
 
 WriteUninstaller "$INSTDIR\uninstall.exe"
