@@ -5,6 +5,7 @@ from urllib import unquote
 
 from utils import casepath, die, unicodeify
 
+textypes=['.dds','.png','.bmp']
 
 def parseapt(folder, secondary, missing, names, f, parent):
 
@@ -114,7 +115,7 @@ def parseacf(folder, secondary, missing, names, f, parent):
                 if not thing in secondary:
                     secondary[thing]=[f]
                     # XXX weapon airfoils!
-                    for ext in ['.png','.bmp']:
+                    for ext in textypes:
                         tex2=casepath(folder,join('weapons',name[:-4]+ext))
                         if exists(join(folder,tex2)):
                             secondary[tex2]=[thing]
@@ -172,7 +173,7 @@ def parselib(folder, secondary, missing, names, f, parent):
                 line=line[len(line.split()[0]):].strip()
                 obj=casepath(folder, unicodeify(line.replace(':','/')))
                 if obj not in secondary:
-                    if not obj[-4:].lower() in ['.bmp', '.png']:
+                    if not obj[-4:].lower() in textypes:
                         # eg A0 LHA Scenery System exports textures!
                         parseobj(folder, secondary, missing, names, obj, f)
                     else:
@@ -231,12 +232,12 @@ def parseobj(folder, secondary, missing, names, f, parent):
             else:
                 raise IOError
 
-            if tex[-4:].lower() in ['.png', '.bmp']:
+            if tex[-4:].lower() in textypes:
                 tex1=tex[:-4]
                 seq=[tex2[-4:]]
             else:
                 tex1=tex
-                seq=['.png', '.bmp']
+                seq=textypes
             for d in [dirname(f), 'custom object textures']:
                 for ext in seq:
                     tex2=casepath(folder, join(d, tex1+ext))
@@ -247,7 +248,7 @@ def parseobj(folder, secondary, missing, names, f, parent):
                             secondary[tex2].append(f)
                         for lit in ['_lit', 'lit']:
                             for d in [dirname(f), 'custom object textures']:
-                                for ext in ['.png', '.bmp']:
+                                for ext in textypes:
                                     tex2=casepath(folder, join(d, tex1+lit+ext))
                                     if exists(join(folder, tex2)):
                                         if not tex2 in secondary:

@@ -68,7 +68,7 @@ if acf:
                       '_panel_b', '_panel_l', '_panel_lb', '_panel_lf', '_panel_r', '_panel_rb', '_panel_rf',
                       '_test_linear', '_test_linear_lit', '_test_nearest', '_test_nearest_lit',
                       '_blend_linear', '_compass_rose', '_HSI_rose', '_prop', '_flame']:
-            for ext in ['.png','.bmp']:
+            for ext in textypes:
                 tex2=casepath(folder,base+thing+ext)
                 if exists(join(folder,tex2)):
                     secondary[tex2]=[f]
@@ -77,7 +77,7 @@ if acf:
             for d in listdir(folder):
                 livdir=join(folder,d)
                 if not isdir(livdir): continue
-                for ext in ['.png','.bmp']:
+                for ext in textypes:
                     tex2=casepath(livdir,base+thing+ext)
                     if exists(join(livdir,tex2)):
                         secondary[join(livdir,tex2)[flen:]]=[f]
@@ -98,10 +98,11 @@ if acf:
                     secondary[unicodeify(join(path,thing)[flen:])]=['?']
 
     cockpit=casepath(folder,'cockpit')
+    cocktypes=textypes+['.txt']
     if exists(join(folder,cockpit)):
         for path, dirs, files in walk(join(folder,cockpit)):
             for thing in files:
-                if thing[-4:].lower() in ['.bmp','.png','.txt']:
+                if thing[-4:].lower() in cocktypes:
                     secondary[unicodeify(join(path,thing)[flen:])]=['?']
 
     #if exists(join(folder,'plane.txt')) and exists(join(folder,'plane.jpg')):
@@ -138,7 +139,7 @@ for key in keys:
 # unused
 for path, dirs, files in walk(folder):
     for thing in files:
-        if thing[-4:].lower() in ['.acf', '.afl', '.bch', '.bmp', '.dat', '.dsf', '.fac', '.for', '.lin', '.net', '.obj', '.pol', '.png', '.str', '.ter', '.txt', '.wav', '.wpn'] and join(path,thing)[flen:] not in keys:
+        if thing[-4:].lower() in ['.acf', '.afl', '.bch', '.bmp', '.dat', '.dds', '.dsf', '.fac', '.for', '.lin', '.net', '.obj', '.pol', '.png', '.str', '.ter', '.txt', '.wav', '.wpn'] and join(path,thing)[flen:] not in keys:
             unused[unicodeify(join(path,thing)[flen:])]=['?']
 
 # Do output
