@@ -11,10 +11,7 @@ from version import appname, appversion
 if not 'startfile' in dir(os):
     import webbrowser
 
-if platform=='win32':# or platform=='darwin':
-    import wx	# tkFileDialog can't handle non-ascii directories
-    app=wx.PySimpleApp()
-elif platform=='darwin':
+if platform=='darwin':
     from EasyDialogs import AskFolder, Message, ProgressBar
     try:
         import __main__
@@ -22,28 +19,18 @@ elif platform=='darwin':
     except:
         pass
 else:
-    import Tkinter, tkMessageBox, tkFileDialog
-    app=Tkinter.Tk()
-    app.withdraw()
+    import wx	# tkFileDialog can't handle non-ascii directories
+    app=wx.PySimpleApp()
 
 
 def choosefolder():
     if platform=='win32':
-        # tkFileDialog doesn't handle unicode
         home=unicodeify(getenv("USERPROFILE", ""))
         for folder in [u'C:\\X-Plane\\Custom Scenery',
                        join(home, "Desktop", "X-Plane", "Custom Scenery")]:
             if isdir(folder): break
         else:
             folder=u'C:\\'
-
-        style=wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER
-        if 'DD_DIR_MUST_EXIST' in dir(wx): style|=wx.DD_DIR_MUST_EXIST
-        dlg=wx.DirDialog(None, 'Choose the folder that contains the aircraft or scenery that you want to publish', folder, style)
-        if dlg.ShowModal()!=wx.ID_OK: exit(1)
-        folder=dlg.GetPath()
-        dlg.Destroy()
-
     else:
         home=unicodeify(expanduser('~'))	# Unicode so paths listed as unicode
         for folder in [join(home, 'X-Plane', 'Custom Scenery'),
@@ -52,16 +39,35 @@ def choosefolder():
             if isdir(folder): break
         else:
             folder=home
-
-        if platform=='darwin':
-            folder=AskFolder('Choose the folder that contains the aircraft or scenery that you want to publish', defaultLocation=folder, wanted=unicode)
-        else:
-            folder=tkFileDialog.askdirectory(parent=app, initialdir=folder, title='Choose the folder that contains the aircraft or scenery', mustexist=True)
+        
+    if platform=='darwin':
+        folder=AskFolder('Choose the folder that contains the aircraft or scenery that you want to publish', defaultLocation=folder, wanted=unicode)
+    else:
+        style=wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER
+        if 'DD_DIR_MUST_EXIST' in dir(wx): style|=wx.DD_DIR_MUST_EXIST
+        if platform=='win32':
+            dlg=wx.DirDialog(None, 'Choose the folder that contains the aircraft or scenery that you want to publish', folder, style)
+        else:	# displayed in title on linux
+            dlg=wx.DirDialog(None, 'Select aircraft or scenery folder', folder, style)
+        if dlg.ShowModal()!=wx.ID_OK: exit(1)
+        folder=dlg.GetPath()
+        dlg.Destroy()
             
     if not folder: exit(0)
     return unicodeify(folder)
 
-if platform=='win32':
+
+if platform=='darwin':
+    class Progress(ProgressBar):
+        def __init__(self, message):
+            ProgressBar.__init__(self, appname, 102, message)
+            self.inc()
+
+        def update(self, message, newval):
+            self.label(message.encode('utf-8'))
+            self.set(2+newval)
+
+else:
     class Progress(wx.ProgressDialog):
         def __init__(self, message):
             wx.ProgressDialog.__init__(self, appname, message, 105, None, wx.PD_SMOOTH)
@@ -75,30 +81,9 @@ if platform=='win32':
             if not self.Update(2+newval, message):
                 raise KeyboardInterrupt
 
-elif platform=='darwin':
-    class Progress(ProgressBar):
-        def __init__(self, message):
-            ProgressBar.__init__(self, appname, 102, message)
-            self.inc()
-
-        def update(self, message, newval):
-            self.label(message.encode('utf-8'))
-            self.set(2+newval)
-
-else:	# no progress dialog in tk
-    class Progress:
-        def __init__(self, message):
-            pass
-
-        def update(self, message, newval):
-            return True
-
-        def done(self):
-            pass
-            
     
 def die(message):
-    if platform=='win32':
+    if platform!='darwin':
         wx.MessageBox(message, appname, wx.ICON_ERROR|wx.OK)
     elif 'tkMessageBox' in dir(__main__):
         tkMessageBox._show("Error", message, icon="question", type="ok")

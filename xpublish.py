@@ -8,6 +8,10 @@ from zipfile import ZipFile, ZIP_DEFLATED
 from files import *
 from utils import *
 
+if platform.lower().startswith('linux') and not getenv("DISPLAY"):
+    print "Can't run: DISPLAY is not set"
+    exit(1)
+
 if len(argv)>1:
     folder=unicodeify(argv[1])
 else:
@@ -75,13 +79,14 @@ if acf:
                       '_panel', '_panel_lit', '_panel-1','_panel-1_lit',
                       '_panel_b', '_panel_l', '_panel_lb', '_panel_lf', '_panel_r', '_panel_rb', '_panel_rf',
                       '_test_linear', '_test_linear_lit', '_test_nearest', '_test_nearest_lit',
-                      '_blend_linear', '_compass_rose', '_HSI_rose', '_prop', '_flame']:
+                      '_blend_linear', '_compass_rose', '_HSI_rose',
+                      '_prop', '_flame', '_chute']:
             for ext in textypes:
                 tex2=casepath(folder,base+thing+ext)
                 if exists(join(folder,tex2)):
                     secondary[tex2]=[f]
                     break
-            # liveries
+            # v8 unofficial liveries
             for d in listdir(folder):
                 livdir=join(folder,d)
                 if not isdir(livdir): continue
@@ -90,8 +95,20 @@ if acf:
                     if exists(join(livdir,tex2)):
                         secondary[join(livdir,tex2)[flen:]]=[f]
                         break
+            # v9 liveries
+            for d in listdir(folder):
+                if d.lower()!='liveries' or not isdir(join(folder,d)):
+                    continue
+                for d2 in listdir(join(folder,d)):
+                    livdir=join(folder,d,d2)
+                    if not isdir(livdir): continue
+                    for ext in textypes:
+                        tex2=casepath(livdir,base+thing+ext)
+                        if exists(join(livdir,tex2)):
+                            secondary[join(livdir,tex2)[flen:]]=[f]
+                            break
                     
-        for thing in ['_cockpit.obj','_cockpit_INN.obj','_cockpit_OUT.obj']:
+        for thing in ['_cockpit.obj','_cockpit_INN.obj','_cockpit_OUT.obj', '_slung_load.obj']:
             obj=casepath(folder,base+thing)
             if exists(join(folder,obj)):
                 secondary[obj]=[f]
