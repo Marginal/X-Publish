@@ -6,6 +6,7 @@
 !define MUI_ABORTWARNING
 
 SetCompressor /SOLID lzma
+RequestExecutionLevel admin
 
 Name "X-Publish $%VERSION%"
 Caption "X-Publish $%VERSION% Installer"
@@ -31,9 +32,14 @@ UninstallIcon "win32\installer.ico"
 Section "Install"
   SetOutPath "$INSTDIR"
   File /r dist\*
+
   Delete "$INSTDIR\X-Publish.exe.log"
+  SetShellVarContext current
+  Delete "$SMPROGRAMS\X-Publish.lnk"	; old versions used current user
+  SetShellVarContext all
   CreateShortCut "$SMPROGRAMS\X-Publish.lnk" "$INSTDIR\xpublish.exe"
 
+  ; uninstall info
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\X-Publish" "DisplayIcon" "$INSTDIR\X-Publish.exe,0"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\X-Publish" "DisplayName" "X-Publish"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\X-Publish" "DisplayVersion" "$%VERSION%"
@@ -50,6 +56,9 @@ SectionEnd
 
 
 Section "Uninstall"
+  SetShellVarContext current
+  Delete "$SMPROGRAMS\X-Publish.lnk"	; old versions used current user
+  SetShellVarContext all
   Delete "$SMPROGRAMS\X-Publish.lnk"
   Delete "$INSTDIR\MSVCR71.dll"
   Delete "$INSTDIR\X-Publish.exe"

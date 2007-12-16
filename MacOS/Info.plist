@@ -22,5 +22,7 @@
 	<string>appversion</string>
 	<key>CFBundleGetInfoString</key>
 	<string>X-Publish appversion, © 2007 Jonathan Harris</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.3.0</string>
 </dict>
 </plist>
