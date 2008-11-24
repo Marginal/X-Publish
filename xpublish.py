@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from glob import glob
 from os import listdir, unlink, walk
 from os.path import basename, dirname, exists, isdir, join, pardir, sep
@@ -67,6 +69,7 @@ misc.update(htm)
 secondary={}
 unused={}
 missing={}
+nobackup={}
 
 if acf:
     names={}
@@ -80,7 +83,7 @@ if acf:
                       '_panel_b', '_panel_l', '_panel_lb', '_panel_lf', '_panel_r', '_panel_rb', '_panel_rf',
                       '_test_linear', '_test_linear_lit', '_test_nearest', '_test_nearest_lit',
                       '_blend_linear', '_compass_rose', '_HSI_rose',
-                      '_prop', '_flame', '_chute']:
+                      '_prop', '_flame', '_chute', '_icon']:
             for ext in textypes:
                 tex2=casepath(folder,base+thing+ext)
                 if exists(join(folder,tex2)):
@@ -112,8 +115,8 @@ if acf:
             obj=casepath(folder,base+thing)
             if exists(join(folder,obj)):
                 secondary[obj]=[f]
-                parseobj(folder, secondary, missing, {}, obj, f)
-        parseacf(folder, secondary, missing, names, f, None)
+                parseobj(folder, secondary, missing, nobackup, {}, obj, f)
+        parseacf(folder, secondary, missing, nobackup, names, f, None)
 
     sounds=casepath(folder,'sounds')
     if exists(join(folder,sounds)):
@@ -122,13 +125,13 @@ if acf:
                 if thing[-4:].lower()=='.wav':
                     secondary[unicodeify(join(path,thing)[flen:])]=['?']
 
-    cockpit=casepath(folder,'cockpit')
     cocktypes=textypes+['.txt']
-    if exists(join(folder,cockpit)):
-        for path, dirs, files in walk(join(folder,cockpit)):
-            for thing in files:
-                if thing[-4:].lower() in cocktypes:
-                    secondary[unicodeify(join(path,thing)[flen:])]=['?']
+    for cockpit in [casepath(folder,'cockpit'), casepath(folder,'cockpit_3d')]:
+        if exists(join(folder,cockpit)):
+            for path, dirs, files in walk(join(folder,cockpit)):
+                for thing in files:
+                    if thing[-4:].lower() in cocktypes:
+                        secondary[unicodeify(join(path,thing)[flen:])]=['?']
 
     #if exists(join(folder,'plane.txt')) and exists(join(folder,'plane.jpg')):
     #    misc['plane.jpg']=['plane.txt']
@@ -136,19 +139,21 @@ if acf:
 else:
     # get names so we don't complain about use of library objects
     names={'terrain_Water':None}
-    for f in glob(join(folder, pardir, '*', '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]'))+glob(join(folder, pardir, pardir, '[rR][eE][sS][oO][uU][rR][cC][eE][sS]', '[dD][eE][fF][aA][uU][lL][tT] [sS][cC][eE][nN][eE][rR][yY]', '*', '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]')):
-        scanlib(names, f)
+    for f in glob(join(folder, pardir, pardir, '[rR][eE][sS][oO][uU][rR][cC][eE][sS]', '[dD][eE][fF][aA][uU][lL][tT] [sS][cC][eE][nN][eE][rR][yY]', '*', '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]')):
+        scanlib(names, f, None)
+    for f in glob(join(folder, pardir, '*', '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]')):
+        scanlib(names, f, basename(dirname(f)))
 
     for f in apt.keys():
-        parseapt(folder, secondary, missing, names, f, None)
+        parseapt(folder, secondary, missing, nobackup, names, f, None)
     for f in lib.keys():
-        parselib(folder, secondary, missing, names, f, None)
+        parselib(folder, secondary, missing, nobackup, names, f, None)
     for f in dsf.keys():
-        parsedsf(folder, secondary, missing, names, f, None)
+        parsedsf(folder, secondary, missing, nobackup, names, f, None)
 
 # last so don't double-count stuff already in misc
 for f in htm.keys():
-    parsehtm(folder, secondary, misc, missing, f, None)
+    parsehtm(folder, secondary, misc, missing, nobackup, f, None)
 
 # Check file name sanity
 keys=primary.keys()+misc.keys()+secondary.keys()
@@ -225,6 +230,7 @@ if misc: dosection(h, 'Documentation', folder, misc, False, 'lightskyblue')
 if secondary: dosection(h, 'Included files', folder, secondary, True, 'lightskyblue')
 if unused: dosection(h, 'Unused X-Plane files', folder, unused, False, 'darkgray')
 if missing: dosection(h, 'Missing or Unreadable', folder, missing, True, 'tomato')
+if nobackup: dosection(h, 'Missing from a Placeholder Library', folder, nobackup, True, 'tomato')
 h.write('  </table>\n'
         '</body>\n'
         '</html>\n')

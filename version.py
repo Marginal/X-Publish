@@ -1,2 +1,2 @@
 appname='X-Publish'
-appversion=1.10	# Must be numeric
+appversion=1.12	# Must be numeric

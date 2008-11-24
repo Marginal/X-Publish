@@ -6,8 +6,8 @@ set RELEASE=1
 set RPM=%TMP%\xpublish
 
 @if exist X-Publish_%VER%_src.zip del X-Publish_%VER%_src.zip
-@if exist X-Publish-%VERSION%-%RELEASE%.i386.rpm del X-Publish-%VERSION%-%RELEASE%.i386.rpm
-@if exist X-Publish_%VERSION%-%RELEASE%_i386.deb del X-Publish_%VERSION%-%RELEASE%_i386.deb
+@if exist X-Publish-%VERSION%-%RELEASE%.noarch.rpm del X-Publish-%VERSION%-%RELEASE%.noarch.rpm
+@if exist X-Publish_%VERSION%-%RELEASE%_all.deb del X-Publish_%VERSION%-%RELEASE%_all.deb
 @if exist X-Publish_%VER%_mac.zip del X-Publish_%VER%_mac.zip
 @if exist X-Publish_%VER%_win32.exe del X-Publish_%VER%_win32.exe
 
