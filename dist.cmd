@@ -74,8 +74,9 @@ REM move /y X-Publish.app\Contents\MacOS\*.png X-Publish.app\Contents\Resources\
 zip -r X-Publish_%VER%_mac.zip X-Publish.app |findstr -vc:"adding:"
 
 :win32
+if exist build rd /s /q build
 "C:\Program Files\Python24\python.exe" -OO win32\setup.py -q py2exe
 "C:\Program Files\NSIS\makensis.exe" /nocd /v2 win32\X-Publish.nsi
-rd  /s /q build
+rd /s /q build
 
 :end
