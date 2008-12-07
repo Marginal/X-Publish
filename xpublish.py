@@ -142,7 +142,11 @@ else:
     for f in glob(join(folder, pardir, pardir, '[rR][eE][sS][oO][uU][rR][cC][eE][sS]', '[dD][eE][fF][aA][uU][lL][tT] [sS][cC][eE][nN][eE][rR][yY]', '*', '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]')):
         scanlib(names, f, None)
     for f in glob(join(folder, pardir, '*', '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]')):
-        scanlib(names, f, basename(dirname(f)))
+        pkgname=basename(dirname(f))
+        if pkgname==basename(folder):
+            scanlib(names, f, None)	# Don't need placeholder for this pkg
+        else:
+            scanlib(names, f, pkgname)
 
     for f in apt.keys():
         parseapt(folder, secondary, missing, nobackup, names, f, None)
@@ -229,7 +233,7 @@ else:
 if misc: dosection(h, 'Documentation', folder, misc, False, 'lightskyblue')
 if secondary: dosection(h, 'Included files', folder, secondary, True, 'lightskyblue')
 if unused: dosection(h, 'Unused X-Plane files', folder, unused, False, 'darkgray')
-if missing: dosection(h, 'Missing or Unreadable', folder, missing, True, 'tomato')
+if missing: dosection(h, 'Missing or Unreadable', folder, missing, True, 'red')
 if nobackup: dosection(h, 'Missing from a Placeholder Library', folder, nobackup, True, 'tomato')
 h.write('  </table>\n'
         '</body>\n'
