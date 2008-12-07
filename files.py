@@ -3,6 +3,7 @@ from os import listdir
 from os.path import basename, dirname, exists, isdir, join, normpath, pardir, splitext
 from struct import unpack
 from urllib import unquote
+if __debug__: from traceback import print_exc
 
 from utils import casepath, die, unicodeify
 
@@ -14,6 +15,7 @@ def parseapt(folder, secondary, missing, nobackup, names, f, parent):
         h=file(join(folder, f), 'rU')
     except:
         die("Can't read %s" % f)
+        if __debug__: print_exc()
     try:
         if not h.readline().strip()[0] in ['I','A']:
             raise IOError
@@ -151,6 +153,7 @@ def parseacf(folder, secondary, missing, nobackup, names, f, parent):
                 missing[thing].append(f)
         
     except:
+        if __debug__: print_exc()
         die("Can't read %s" % f)
         
 
@@ -185,6 +188,7 @@ def parselib(folder, secondary, missing, nobackup, names, f, parent):
                     secondary[obj].append(f)
         h.close()
     except:
+        if __debug__: print_exc()
         die("Can't read %s" % f)
 
 
@@ -208,6 +212,7 @@ def scanlib(names, f, lib):
                 names[name]=lib
         h.close()
     except:
+        if __debug__: print_exc()
         die("Can't read %s" % f)
 
 # read object
@@ -449,10 +454,10 @@ def parsedsf(folder, secondary, missing, nobackup, names, f, parent):
                             break
                     else:
                         if obj in names:	# terrain_Water or library obj
-                            if names[obj.lower()]:
+                            if names[obj]:
                                 if obj not in nobackup:
                                     nobackup[obj]=[f]
-                                elif f not in missing[obj]:
+                                elif f not in nobackup[obj]:
                                     nobackup[obj].append(f)
                         elif obj not in missing:
                             missing[obj]=[f]
@@ -465,6 +470,7 @@ def parsedsf(folder, secondary, missing, nobackup, names, f, parent):
 
         h.close()
     except:
+        if __debug__: print_exc()
         die("Can't read %s" % f)
 
 
