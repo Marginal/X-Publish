@@ -24,11 +24,11 @@ try:
     # Mac uses mac_roman or utf-8
     basename(folder).encode('ascii')
 except:
-    die('The folder name %s \ncan\'t reliably be stored in a .zip file.\n\nRename the folder avoiding unaccented characters \nand the characters  \\ / : * ? " < > |' % basename(folder))
+    die('The folder name %s \ncan\'t reliably be stored in a .zip file.\n\nRename the folder avoiding accented characters \nand the characters  \\ / : * ? " < > |' % basename(folder))
 
 for c in '\\/:*?"<>|':	# not allowed on Windows
     if c in basename(folder):
-        die('The folder name %s \ncan\'t reliably be stored in a .zip file.\n\nRename the folder avoiding unaccented characters \nand the characters  \\ / : * ? " < > |' % basename(folder))
+        die('The folder name %s \ncan\'t reliably be stored in a .zip file.\n\nRename the folder avoiding accented characters \nand the characters  \\ / : * ? " < > |' % basename(folder))
 
 if basename(folder)!=basename(folder).strip():
     # Mac allows trailing spaces. Windows not.
@@ -165,10 +165,10 @@ for key in keys:
     try:
         key.encode('ascii')
     except:
-        die('The file name %s \ncan\'t reliably be stored in a .zip file. \n\nRename the file avoiding unaccented characters \nand the characters  \\ / : * ? " < > |' % key)
+        die('The file name %s \ncan\'t reliably be stored in a .zip file. \n\nRename the file avoiding accented characters \nand the characters  \\ / : * ? " < > |' % key)
     for c in '\\/:*?"<>|':
         if c in key.replace(sep,''):
-            die('The file name %s \ncan\'t reliably be stored in a .zip file. \n\nRename the file avoiding unaccented characters \nand the characters  \\ / : * ? " < > |' % key)
+            die('The file name %s \ncan\'t reliably be stored in a .zip file. \n\nRename the file avoiding accented characters \nand the characters  \\ / : * ? " < > |' % key)
 
 # unused
 for path, dirs, files in walk(folder):
