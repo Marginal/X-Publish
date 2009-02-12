@@ -43,7 +43,7 @@ def parseacf(folder, secondary, missing, nobackup, names, f, parent):
             die("%s isn't a v7, v8 or v9 X-Plane file! " % f)
         elif version<740:
             die("%s is in X-Plane %4.2f format! \n\nPlease re-save it using Plane-Maker 7.63. " % (f, version/100.0))
-        elif version not in [740,810,815,830,840,860,900,901,902]:
+        elif version not in [740,810,815,830,840,860,900,901,902,920]:
             die("%s is in X-Plane %4.2f format! \n\nI can't read %4.2f format planes. " % (f, version/100.0, version/100.0))
 
         txtLEN=40
