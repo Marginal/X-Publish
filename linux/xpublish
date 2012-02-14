@@ -1,0 +1,2 @@
+#!/bin/bash
+exec -a xpublish python -OO `dirname $0`/../lib/xpublish/xpublish.py

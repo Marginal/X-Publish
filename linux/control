@@ -1,0 +1,11 @@
+Package: xpublish
+Section: graphics
+Priority: extra
+Architecture: all
+Installed-Size: 60
+Depends: bash, python (>=2.4), python-gtk2 (>=2.6)
+Provides: xpublish
+Maintainer: Jonathan Harris <x-plane@marginal.org.uk>
+Description: X-Plane package publisher
+ This tool packages up an X-Plane aircraft or scenery package folder into a cross-platform .zip archive for publication.
+ The tool archives only the required files (skipping source files eg Photoshop or Blender files) and produces a report listing which files it has included and warning about any missing files.
