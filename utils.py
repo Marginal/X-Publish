@@ -11,84 +11,76 @@ from version import appname, appversion
 if not 'startfile' in dir(os):
     import webbrowser
 
-if platform=='darwin':
-    from EasyDialogs import AskFolder, Message, ProgressBar
-    try:
-        import __main__
-        import tkMessageBox	# not on Panther
-    except:
-        pass
-else:
-    import wx	# tkFileDialog can't handle non-ascii directories
-    app=wx.PySimpleApp()
+try:
+    import wx
+except:
+    import Tkinter, tkMessageBox
+    Tkinter.Tk().withdraw()
+    tkMessageBox.showerror("Error", "wxPython is not installed.\nThis application requires wxPython 2.5.3 or later.")
+    exit(1)
 
+app=wx.App()
 
 def choosefolder():
     if platform=='win32':
-        home=unicodeify(getenv("USERPROFILE", ""))
-        for folder in [u'C:\\X-Plane\\Custom Scenery',
-                       join(home, "Desktop", "X-Plane", "Custom Scenery")]:
-            if isdir(folder): break
+        progs=getenv("PROGRAMFILES", '\\')
+        for i in listdir(progs):
+            if i.lower().startswith("x-plane") and isdir(join(progs, i, "Custom Scenery")):
+                folder=join(progs, i)
+                break
         else:
-            folder=u'C:\\'
+            desktop=join(getenv("USERPROFILE", '\\'), "Desktop")
+            for i in listdir(desktop):
+                if i.lower().startswith("x-plane") and isdir(join(desktop, i, "Custom Scenery")):
+                    folder=join(desktop, i)
+                    break
+            else:
+                folder=u'C:\\'
     else:
         home=unicodeify(expanduser('~'))	# Unicode so paths listed as unicode
-        for folder in [join(home, 'X-Plane', 'Custom Scenery'),
-                       join(home, 'Desktop', 'X-Plane', 'Custom Scenery'),
-                       join(sep, 'Applications', 'X-Plane', 'Custom Scenery')]:
-            if isdir(folder): break
+        desktop=join(home, "Desktop")
+        for i in listdir(desktop):
+            if i.lower().startswith("x-plane") and isdir(join(desktop, i, "Custom Scenery")):
+                folder=join(desktop, i)
+                break
         else:
-            folder=home
+            for i in listdir(home):
+                if i.lower().startswith("x-plane") and isdir(join(home, i, "Custom Scenery")):
+                    folder=join(home, i)
+                    break
+            else:
+                folder=home
         
-    if platform=='darwin':
-        folder=AskFolder('Choose the folder that contains the aircraft or scenery that you want to publish', defaultLocation=folder, wanted=unicode)
-    else:
-        style=wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER
-        if 'DD_DIR_MUST_EXIST' in dir(wx): style|=wx.DD_DIR_MUST_EXIST
-        if platform=='win32':
-            dlg=wx.DirDialog(None, 'Choose the folder that contains the aircraft or scenery that you want to publish', folder, style)
-        else:	# displayed in title on linux
-            dlg=wx.DirDialog(None, 'Select aircraft or scenery folder', folder, style)
-        if dlg.ShowModal()!=wx.ID_OK: exit(1)
-        folder=dlg.GetPath()
-        dlg.Destroy()
+    style=wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER
+    if 'DD_DIR_MUST_EXIST' in dir(wx): style|=wx.DD_DIR_MUST_EXIST
+    if platform=='win32':
+        dlg=wx.DirDialog(None, 'Choose the folder that contains the aircraft or scenery that you want to publish', folder, style)
+    else:	# displayed in title on linux
+        dlg=wx.DirDialog(None, 'Select aircraft or scenery folder', folder, style)
+    if dlg.ShowModal()!=wx.ID_OK: exit(1)
+    folder=dlg.GetPath()
+    dlg.Destroy()
             
     if not folder: exit(0)
     return unicodeify(folder)
 
 
-if platform=='darwin':
-    class Progress(ProgressBar):
-        def __init__(self, message):
-            ProgressBar.__init__(self, appname, 102, message)
-            self.inc()
+class Progress(wx.ProgressDialog):
+    def __init__(self, message):
+        wx.ProgressDialog.__init__(self, appname, message, 105, None, wx.PD_SMOOTH)
+        # wx.PD_CAN_ABORT is unresponsive (no event loop?)
+        # hack to make wider:
+        (x,y)=self.GetClientSize()
+        self.SetClientSize((320,y))
+        self.Update(1)	# show some progress
 
-        def update(self, message, newval):
-            self.label(message.encode('utf-8'))
-            self.set(2+newval)
-
-else:
-    class Progress(wx.ProgressDialog):
-        def __init__(self, message):
-            wx.ProgressDialog.__init__(self, appname, message, 105, None, wx.PD_SMOOTH)
-            # wx.PD_CAN_ABORT is unresponsive (no event loop?)
-            # hack to make wider:
-            (x,y)=self.GetClientSize()
-            self.SetClientSize((x+x/2,y))
-            self.Update(1)	# show some progress
-
-        def update(self, message, newval):
-            if not self.Update(2+newval, message):
-                raise KeyboardInterrupt
+    def update(self, message, newval):
+        if not self.Update(2+newval, message):
+            raise KeyboardInterrupt
 
     
 def die(message):
-    if platform!='darwin':
-        wx.MessageBox(message, appname, wx.ICON_ERROR|wx.OK)
-    elif 'tkMessageBox' in dir(__main__):
-        tkMessageBox._show("Error", message, icon="question", type="ok")
-    else:	# Panther
-        Message(message.encode('ascii','replace'))	# only does ASCII
+    wx.MessageBox(message, appname, wx.ICON_ERROR|wx.OK)
     exit(1)
 
 
