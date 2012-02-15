@@ -19,7 +19,7 @@ def parseapt(folder, secondary, missing, nobackup, names, f, parent):
     try:
         if not h.readline().strip()[0] in ['I','A']:
             raise IOError
-        if not h.readline().split()[0] in ['600','703','715','810','850']:
+        if not h.readline().split()[0] in ['600','703','715','810','850','1000']:
             raise IOError
         h.close()
     except:
@@ -27,6 +27,7 @@ def parseapt(folder, secondary, missing, nobackup, names, f, parent):
 
 
 def parseacf(folder, secondary, missing, nobackup, names, f, parent):
+    newacf={}
     try:
         h=file(join(folder, f), 'rb')
         c=h.read(1)
@@ -34,67 +35,99 @@ def parseacf(folder, secondary, missing, nobackup, names, f, parent):
             fmt='>'
         elif c=='i':
             fmt='<'
+        elif c in ['I','A']:
+            # >1000 style?
+            h.seek(0)
+            try:
+                if not h.readline().strip()[0] in ['I','A']: raise IOError
+                version=int(h.readline().split()[0])
+                if version<=1000 or h.readline().split()[0]!='ACF': raise IOError
+                for line in h:
+                    line=line.split('#')[0].strip()
+                    if not line: continue
+                    line=line.split(None,2)
+                    if line[0]=='P':
+                        newacf[line[1]]=line[2].strip()
+            except:
+                die("%s isn't a v7, v8, v9 or v10 X-Plane file! " % f)
         else:
-            die("%s isn't a v7, v8 or v9 X-Plane file! " % f)
-        (version,)=unpack(fmt+'i', h.read(4))
-        if version==8000:
-            version=800	# v8.00 format was labelled 8000
-        elif version<600 or version>=1000:
-            die("%s isn't a v7, v8 or v9 X-Plane file! " % f)
-        elif version<740:
-            die("%s is in X-Plane %4.2f format! \n\nPlease re-save it using Plane-Maker 7.63. " % (f, version/100.0))
-        elif version not in [740,810,815,830,840,860,900,901,902,920]:
-            die("%s is in X-Plane %4.2f format! \n\nI can't read %4.2f format planes. " % (f, version/100.0, version/100.0))
+            die("%s isn't a v7, v8, v9 or v10 X-Plane file! " % f)
 
-        txtLEN=40
-        if version<800:
-            aflDIM=44
-            partSTRIDE=4
-            part=0x2acd
-            aflSTRIDE=0x28
-            Rafl0=0x02bf1
-            Rafl1=0x03759
-            Tafl0=0x042c1
-            Tafl1=0x04e29
-            wpnDIM=24
-            wpnSTRIDE=500
-            wpn=0x098c29
-        elif version==800:
-            version=800
-            aflDIM=56
-            aflSTRIDE=0x6cc
-            Rafl0=0x26ae9
-            Rafl1=0x26b11
-            Tafl0=0x26b39
-            Tafl1=0x26b61
-            partSTRIDE=0x2ee4
-            part=0x3e77d
-            wpnDIM=24
-            wpnSTRIDE=0x48
-            wpn=0x155251
-        else:	# version>800
-            aflDIM=56
-            aflSTRIDE=0x8b4
-            Rafl0=0x26ae9
-            Rafl1=0x26b11
-            Tafl0=0x26b39
-            Tafl1=0x26b61
-            partSTRIDE=0x2ee4
-            part=0x4523d
-            wpnDIM=24
-            wpnSTRIDE=0x48
-            wpn=0x15bd11
-            objDIM=24
-            objSTRIDE=0x48	# 8.40 and later
-            obj=0x15ee31
+        if newacf:
+            aflDIM=int(newacf['_wing/count'])
+            Rafl0='_afl_file_R0'
+            Rafl1='_afl_file_R1'
+            Tafl0='_afl_file_T0'
+            Tafl1='_afl_file_T1'
+            wpnDIM=int(newacf['_wpna/count'])
+            objDIM=int(newacf['_obja/count'])
+        else:
+            (version,)=unpack(fmt+'i', h.read(4))
+            if version==8000:
+                version=800	# v8.00 format was labelled 8000
+            elif version<600 or version>1000:
+                die("%s isn't a v7, v8, v9 or v10 X-Plane file! " % f)
+            elif version<740:
+                die("%s is in X-Plane %4.2f format! \n\nPlease re-save it using Plane-Maker 7.63. " % (f, version/100.0))
+            elif version not in [740,810,815,830,840,860,900,901,902,920,941]:
+                die("%s is in X-Plane %4.2f format! \n\nI can't read %4.2f format planes. " % (f, version/100.0, version/100.0))
+
+            txtLEN=40
+            if version<800:
+                aflDIM=44
+                partSTRIDE=4
+                part=0x2acd
+                aflSTRIDE=0x28
+                Rafl0=0x02bf1
+                Rafl1=0x03759
+                Tafl0=0x042c1
+                Tafl1=0x04e29
+                wpnDIM=24
+                wpnSTRIDE=500
+                wpn=0x098c29
+            elif version==800:
+                version=800
+                aflDIM=56
+                aflSTRIDE=0x6cc
+                Rafl0=0x26ae9
+                Rafl1=0x26b11
+                Tafl0=0x26b39
+                Tafl1=0x26b61
+                partSTRIDE=0x2ee4
+                part=0x3e77d
+                wpnDIM=24
+                wpnSTRIDE=0x48
+                wpn=0x155251
+            else:	# version>800
+                aflDIM=56
+                aflSTRIDE=0x8b4
+                Rafl0=0x26ae9
+                Rafl1=0x26b11
+                Tafl0=0x26b39
+                Tafl1=0x26b61
+                partSTRIDE=0x2ee4
+                part=0x4523d
+                wpnDIM=24
+                wpnSTRIDE=0x48
+                wpn=0x15bd11
+                objDIM=24
+                objSTRIDE=0x48	# 8.40 and later
+                obj=0x15ee31
 
         for i in range(aflDIM):
-            h.seek(part+i*partSTRIDE)
-            (eq,)=unpack(fmt+'i', h.read(4))
-            if not eq: continue	# airfoil names not cleared if doesn't exist
+            if newacf:
+                eq='_wing/%d/' % i
+            else:
+                h.seek(part+i*partSTRIDE)
+                (eq,)=unpack(fmt+'i', h.read(4))
+                if not eq: continue	# airfoil names not cleared if doesn't exist
             for b in [Rafl0,Rafl1,Tafl0,Tafl1]:
-                h.seek(b+i*aflSTRIDE)
-                name=unicodeify(h.read(txtLEN).split('\0')[0].strip())
+                if newacf:
+                    if not eq+b in newacf: continue
+                    name=newacf[eq+b]
+                else:
+                    h.seek(b+i*aflSTRIDE)
+                    name=unicodeify(h.read(txtLEN).split('\0')[0].strip())
                 if not name: continue
                 thing=casepath(folder,join('airfoils',name))
                 if exists(join(folder,thing)):
@@ -110,8 +143,13 @@ def parseacf(folder, secondary, missing, nobackup, names, f, parent):
                     missing[thing].append(f)
 
         for i in range(wpnDIM):
-            h.seek(wpn+i*wpnSTRIDE)
-            name=unicodeify(h.read(txtLEN).split('\0')[0].strip())
+            if newacf:
+                eq='_wpna/%d/_v10_att_file_stl' % i
+                if not eq in newacf: continue
+                name=newacf[eq]
+            else:
+                h.seek(wpn+i*wpnSTRIDE)
+                name=unicodeify(h.read(txtLEN).split('\0')[0].strip())
             if not name: continue
             thing=casepath(folder,join('weapons',name))
             if exists(join(folder,thing)):
@@ -137,8 +175,13 @@ def parseacf(folder, secondary, missing, nobackup, names, f, parent):
         if version<840: return
 
         for i in range(objDIM):
-            h.seek(obj+i*objSTRIDE)
-            name=unicodeify(h.read(txtLEN).split('\0')[0].strip())
+            if newacf:
+                eq='_obja/%d/_v10_att_file_stl' % i
+                if not eq in newacf: continue
+                name=newacf[eq]
+            else:
+                h.seek(obj+i*objSTRIDE)
+                name=unicodeify(h.read(txtLEN).split('\0')[0].strip())
             if not name: continue
             thing=casepath(folder,join('objects',name))
             if exists(join(folder,thing)):
@@ -153,7 +196,9 @@ def parseacf(folder, secondary, missing, nobackup, names, f, parent):
                 missing[thing].append(f)
         
     except:
-        if __debug__: print_exc()
+        if __debug__:
+            print f
+            print_exc()
         die("Can't read %s" % f)
         
 
@@ -188,7 +233,9 @@ def parselib(folder, secondary, missing, nobackup, names, f, parent):
                     secondary[obj].append(f)
         h.close()
     except:
-        if __debug__: print_exc()
+        if __debug__:
+            print f
+            print_exc()
         die("Can't read %s" % f)
 
 
@@ -212,7 +259,9 @@ def scanlib(names, f, lib):
                 names[name]=lib
         h.close()
     except:
-        if __debug__: print_exc()
+        if __debug__:
+            print f
+            print_exc()
         die("Can't read %s" % f)
 
 # read object
@@ -225,7 +274,7 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
         if not h.readline().strip()[0] in ['I','A']:
             raise IOError
         version=h.readline().split()[0]
-        if not version in ['2', '700','800','850']:
+        if not version in ['2', '700','800','850','1000']:
             raise IOError
         if version in ['2','700']:
             if version!='2' and not h.readline().split()[0]=='OBJ':
@@ -295,14 +344,18 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
 
         else:
             kind=h.readline().split()[0]
-            if not kind in ['BEACH','FACADE','FOREST','LINE_PAINT','ROADS','OBJ','DRAPED_POLYGON','OBJECT_STRING','TERRAIN']:
+            if not kind in ['AG_POINT','BEACH','FACADE','FOREST','LINE_PAINT','ROADS','OBJ','DRAPED_POLYGON','OBJECT_STRING','TERRAIN']:
                 raise IOError
             for line in h:
                 c=line.split('#')[0].split('//')[0].split()
                 if not c: continue
                 if kind=='OBJ' and c[0]=='POINT_COUNTS': break	# early exit
-                if c[0] in ['TEXTURE','TEXTURE_LIT'] or (kind=='BEACH' and c[0] in ['BASE_TEX','LIT_TEX']) or (kind=='DRAPED_POLYGON' and c[0] in ['TEXTURE_NOWRAP','TEXTURE_LIT_NOWRAP']) or (kind=='TERRAIN' and c[0] in ['BASE_TEX','BASE_TEX_NOWRAP','LIT_TEX','LIT_TEX_NOWRAP','BORDER_TEX','BORDER_TEX_NOWRAP','COMPOSITE_TEX','COMPOSITE_TEX_NOWRAP']):
-                    tex=line.strip()[len(c[0]):].strip()
+                if c[0] in ['TEXTURE','TEXTURE_LIT','TEXTURE_NORMAL','TEXTURE_DRAPED'] or (kind=='BEACH' and c[0] in ['BASE_TEX','LIT_TEX']) or (kind=='DRAPED_POLYGON' and c[0] in ['TEXTURE_NOWRAP','TEXTURE_LIT_NOWRAP']) or (kind=='TERRAIN' and c[0] in ['BASE_TEX','BASE_TEX_NOWRAP','LIT_TEX','LIT_TEX_NOWRAP','BORDER_TEX','BORDER_TEX_NOWRAP','COMPOSITE_TEX','COMPOSITE_TEX_NOWRAP']):
+                    # Texture
+                    if kind=='AG_POINT' and c[0]=='TEXTURE_NORMAL':
+                        tex=line.strip().split(None,2)[2]
+                    else:
+                        tex=line.strip().split(None,1)[1]
                     tex=unicodeify(tex.replace(':','/').replace('\\','/'))
                     if not tex: continue
 
@@ -344,8 +397,32 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
                             elif f not in missing[tex2]:
                                 missing[tex2].append(f)
 
+                elif kind=='AG_POINT' and c[0] in ['VEGETATION','OBJECT']:
+                    # Sub-object
+                    obj=unicodeify(c[1].replace(':','/'))
+                    obj2=casepath(folder, join(dirname(f),obj))
+                    if exists(join(folder, obj2)):
+                        if obj2 not in secondary:
+                            parseobj(folder, secondary, missing, nobackup, names, obj2, f)
+                        elif f not in secondary[obj2]:
+                            secondary[obj2].append(f)
+                    else:
+                        if obj in names:	# terrain_Water or library obj
+                            if names[obj]:
+                                if obj not in nobackup:
+                                    nobackup[obj]=[f]
+                                elif f not in nobackup[obj]:
+                                    nobackup[obj].append(f)
+                        elif obj not in missing:
+                            missing[obj]=[f]
+                        elif f not in missing[obj]:
+                            missing[obj].append(f)
+
         h.close()
     except:
+        if __debug__:
+            print f
+            print_exc()
         if f not in missing:
             missing[f]=[parent]
         elif parent not in missing[f]:
@@ -470,7 +547,9 @@ def parsedsf(folder, secondary, missing, nobackup, names, f, parent):
 
         h.close()
     except:
-        if __debug__: print_exc()
+        if __debug__:
+            print f
+            print_exc()
         die("Can't read %s" % f)
 
 

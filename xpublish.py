@@ -41,7 +41,7 @@ flen=len(folder)+1
 acf=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '*.[aA][cC][fF]'))])
 
 lib=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]'))])
-apt=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[eE][aA][rR][tT][hH] [nN][aA][vV] [dD][aA][tT][aA]', '[aA][pP][tT].[dD][aA][tT]'))])
+apt=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[eE][aA][rR][tT][hH] [nN][aA][vV] [dD][aA][tT][aA]', '[aA][pPtT][tTcC].[dD][aA][tT]'))])
 dsf=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[eE][aA][rR][tT][hH] [nN][aA][vV] [dD][aA][tT][aA]', '[+-][0-9]0[+-][01][0-9]0', '[+-][0-9][0-9][+-][01][0-9][0-9].[dD][sS][fF]'))])
 
 htm=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '*.[hH][tT][mM][lL]'))+glob(join(folder, '*.[hH][tT][mM]'))])
@@ -173,7 +173,7 @@ for key in keys:
 # unused
 for path, dirs, files in walk(folder):
     for thing in files:
-        if thing[-4:].lower() in ['.acf', '.afl', '.bch', '.bmp', '.dat', '.dds', '.dsf', '.fac', '.for', '.lin', '.net', '.obj', '.pol', '.png', '.str', '.ter', '.txt', '.wav', '.wpn'] and join(path,thing)[flen:] not in keys:
+        if thing[-4:].lower() in ['.acf', '.afl', '.agp', '.bch', '.bmp', '.dat', '.dds', '.dsf', '.fac', '.for', '.lin', '.net', '.obj', '.pol', '.png', '.str', '.ter', '.txt', '.wav', '.wpn'] and join(path,thing)[flen:] not in keys:
             unused[unicodeify(join(path,thing)[flen:])]=['?']
 
 # Do output
