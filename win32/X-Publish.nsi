@@ -37,7 +37,7 @@ Section "Install"
   SetShellVarContext current
   Delete "$SMPROGRAMS\X-Publish.lnk"	; old versions used current user
   SetShellVarContext all
-  CreateShortCut "$SMPROGRAMS\X-Publish.lnk" "$INSTDIR\xpublish.exe"
+  CreateShortCut "$SMPROGRAMS\X-Publish.lnk" "$INSTDIR\X-Publish.exe"
 
   ; uninstall info
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\X-Publish" "DisplayIcon" "$INSTDIR\X-Publish.exe,0"
@@ -60,10 +60,10 @@ Section "Uninstall"
   Delete "$SMPROGRAMS\X-Publish.lnk"	; old versions used current user
   SetShellVarContext all
   Delete "$SMPROGRAMS\X-Publish.lnk"
-  Delete "$INSTDIR\MSVCR71.dll"
   Delete "$INSTDIR\X-Publish.exe"
   Delete "$INSTDIR\X-Publish.exe.log"
   Delete "$INSTDIR\uninstall.exe"
+  RMDir /r "$INSTDIR\Microsoft.VC90.CRT"
   RMDir "$INSTDIR"
 
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\X-Publish"

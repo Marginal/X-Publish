@@ -1,20 +1,21 @@
 Summary: X-Plane package publisher
 Name: xpublish
-License: Creative Commons Attribution-ShareAlike 2.5
+Version: %{version}
+Release: %{release}
+License: Creative Commons Attribution-NonCommercial-ShareAlike 3.0
 Group: Amusements/Games
 URL: http://marginal.org.uk/x-planescenery
-Icon: X-Publish.xpm
 Vendor: Jonathan Harris <x-plane@marginal.org.uk>
 Prefix: /usr/local
 Requires: bash, python >= 2.4, wxPython >= 2.6
-# python-tkinter on Suse!
+BuildArch: noarch
 
 %description
 This tool packages up an X-Plane aircraft or scenery package folder into a cross-platform .zip archive for publication.
 The tool archives only the required files (skipping source files eg Photoshop or Blender files) and produces a report listing which files it has included and warning about any missing files.
 
 %files
-%defattr(644,root,root,755)
+%defattr(-,root,root,-)
 %attr(755,root,root) /usr/local/bin/xpublish
 /usr/local/lib/xpublish
 

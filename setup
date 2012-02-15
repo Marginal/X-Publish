@@ -1,0 +1,55 @@
+#!/bin/sh
+
+VERSION=`python -c "from version import appversion; print '%4.2f' % appversion"`
+VER=`python -c "from version import appversion; print int(round(appversion*100,0))"`
+RELEASE=1
+
+rm -f X-Publish_${VER}_src.zip
+rm -f xpublish-$VERSION-$RELEASE.noarch.rpm
+rm -f xpublish_$VERSION-$RELEASE_all.deb
+rm -f X-Publish_${VER}_mac.zip
+rm -rf X-Publish.app
+
+PY='xpublish.py files.py utils.py version.py'
+
+# linux
+RPM=/tmp/xpublish
+RPMRT=$RPM/root
+rm -rf $RPM
+mkdir -p $RPM/BUILD
+mkdir -p $RPM/SOURCES
+mkdir -p $RPM/SPECS
+mkdir -p $RPM/RPMS/noarch
+mkdir -p $RPMRT/usr/local/bin
+mkdir -p $RPMRT/usr/local/lib/xpublish
+cp linux/xpublish.desktop $RPMRT/usr/local/lib/xpublish/
+cp -p linux/xpublish.spec $RPM/SPECS/
+cp -p linux/xpublish $RPMRT/usr/local/bin/
+for i in $PY; do cp -p "$i" $RPMRT/usr/local/lib/xpublish/; done
+cp -p linux/X-Publish.png $RPMRT/usr/local/lib/xpublish/
+rpmbuild -bb --buildroot $RPMRT --define "_topdir $RPM" --define "_unpackaged_files_terminate_build 0" --define "version $VERSION" --define "release $RELEASE" --quiet $RPM/SPECS/xpublish.spec
+mv $RPM/RPMS/noarch/xpublish-$VERSION-$RELEASE.noarch.rpm .
+
+# Debian/Ubuntu
+mkdir -p $RPMRT/DEBIAN
+mkdir -p $RPMRT/usr/local/share/applications
+mkdir -p $RPMRT/usr/local/share/icons/hicolor/48x48/apps
+cp -p linux/xpublish.desktop $RPMRT/usr/local/share/applications/
+cp -p linux/X-Publish.png $RPMRT/usr/local/share/icons/hicolor/48x48/apps/X-Publish.png
+echo Version: $VERSION-$RELEASE> $RPMRT/DEBIAN/control
+cat   linux/control >> $RPMRT/DEBIAN/control
+cp -p linux/postinst $RPMRT/DEBIAN/
+sudo chown -R 0:0 $RPMRT/*
+dpkg-deb -b $RPMRT .	# requires gnu-tar
+sudo chown -R $USER:staff $RPMRT/*
+
+# mac
+mkdir -p X-Publish.app/Contents/MacOS
+cp -p MacOS/* X-Publish.app/Contents/MacOS/
+rm -f X-Publish.app/Contents/MacOS/Info.plist
+rm -f X-Publish.app/Contents/MacOS/*.bak
+for i in $PY; do cp -p "$i" X-Publish.app/Contents/MacOS/; done
+mkdir -p X-Publish.app/Contents/Resources
+sed s/appversion/$VERSION/ <MacOS/Info.plist >X-Publish.app/Contents/Info.plist
+mv X-Publish.app/Contents/MacOS/X-Publish.icns X-Publish.app/Contents/Resources/
+zip -r X-Publish_${VER}_mac.zip X-Publish.app
