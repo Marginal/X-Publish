@@ -1,7 +1,7 @@
 import os
 from os import getenv, listdir
 from os.path import abspath, expanduser, exists, isdir, join, normpath, sep
-from sys import exit, platform
+from sys import exit, platform, getfilesystemencoding
 import types
 import unicodedata
 from urllib import quote
@@ -23,22 +23,38 @@ app=wx.App()
 
 def choosefolder():
     if platform=='win32':
-        progs=getenv("PROGRAMFILES", '\\')
+        from _winreg import OpenKey, QueryValueEx, HKEY_CURRENT_USER, REG_SZ, REG_EXPAND_SZ
+        progs=getenv("PROGRAMFILES", '\\').decode('mbcs')
         for i in listdir(progs):
             if i.lower().startswith("x-plane") and isdir(join(progs, i, "Custom Scenery")):
                 folder=join(progs, i)
                 break
         else:
-            desktop=join(getenv("USERPROFILE", '\\'), "Desktop")
-            for i in listdir(desktop):
-                if i.lower().startswith("x-plane") and isdir(join(desktop, i, "Custom Scenery")):
-                    folder=join(desktop, i)
-                    break
-            else:
-                folder=u'C:\\'
+            folder=getenv("USERPROFILE", '\\').decode('mbcs')	# fallback
+            try:
+                handle=OpenKey(HKEY_CURRENT_USER, 'Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders')
+                (v,t)=QueryValueEx(handle, 'Desktop')
+                handle.Close()
+                if t==REG_EXPAND_SZ:
+                    dirs=v.rstrip('\0').strip().split('\\')
+                    for i in range(len(dirs)):
+                        if dirs[i][0]==dirs[i][-1]=='%':
+                            dirs[i]=getenv(dirs[i][1:-1],dirs[i]).decode('mbcs')
+                    v='\\'.join(dirs)
+                if t in [REG_SZ,REG_EXPAND_SZ] and isdir(v):
+                    folder=desktop=v
+                    for i in listdir(desktop):
+                        if i.lower().startswith("x-plane") and isdir(join(desktop, i, "Custom Scenery")):
+                            folder=join(desktop, i)
+                            break
+            except:
+                pass
     else:
-        home=unicodeify(expanduser('~'))	# Unicode so paths listed as unicode
-        desktop=join(home, "Desktop")
+        try:
+            home=expanduser('~').decode(getfilesystemencoding() or 'utf-8')	# Unicode so paths listed as unicode
+            desktop=join(home, "Desktop")
+        except:
+            home=desktop=u'/'
         for i in listdir(desktop):
             if i.lower().startswith("x-plane") and isdir(join(desktop, i, "Custom Scenery")):
                 folder=join(desktop, i)
