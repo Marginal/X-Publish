@@ -36,7 +36,7 @@ def choosefolder():
                 (v,t)=QueryValueEx(handle, 'Desktop')
                 handle.Close()
                 if t==REG_EXPAND_SZ:
-                    dirs=v.rstrip('\0').strip().split('\\')
+                    dirs=v.rstrip('\0').decode('mbcs').strip().split('\\')
                     for i in range(len(dirs)):
                         if dirs[i][0]==dirs[i][-1]=='%':
                             dirs[i]=getenv(dirs[i][1:-1],dirs[i]).decode('mbcs')
