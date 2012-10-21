@@ -17,7 +17,7 @@ def parseapt(folder, secondary, missing, nobackup, names, f, parent):
         die("Can't read %s" % f)
         if __debug__: print_exc()
     try:
-        if not h.readline().strip()[0] in ['I','A']:
+        if not h.readline().strip(' \t\xef\xbb\xbf')[0] in ['I','A']:	# Also strip UTF-8 BOM
             raise IOError
         if not h.readline().split()[0] in ['600','703','715','810','850','1000']:
             raise IOError
@@ -205,7 +205,7 @@ def parseacf(folder, secondary, missing, nobackup, names, f, parent):
 def parselib(folder, secondary, missing, nobackup, names, f, parent):
     try:
         h=file(join(folder, f), 'rU')
-        if not h.readline().strip()[0] in ['I','A']:
+        if not h.readline().strip(' \t\xef\xbb\xbf')[0] in ['I','A']:	# Also strip UTF-8 BOM
             raise IOError
         if not h.readline().split()[0]=='800':
             raise IOError
@@ -242,7 +242,7 @@ def parselib(folder, secondary, missing, nobackup, names, f, parent):
 def scanlib(names, f, lib):
     try:
         h=file(f, 'rU')
-        if not h.readline().strip()[0] in ['I','A']:
+        if not h.readline().strip(' \t\xef\xbb\xbf')[0] in ['I','A']:	# Also strip UTF-8 BOM
             raise IOError
         if not h.readline().split()[0]=='800':
             raise IOError
@@ -271,7 +271,7 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
     try:
         h=file(join(folder,f), 'rU')
         secondary[f]=[parent]	# file at least is readable - ship it
-        if not h.readline().strip()[0] in ['I','A']:
+        if not h.readline().strip(' \t\xef\xbb\xbf')[0] in ['I','A']:	# Also strip UTF-8 BOM
             raise IOError
         version=h.readline().split()[0]
         if not version in ['2', '700','800','850','1000']:
