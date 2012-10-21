@@ -156,13 +156,13 @@ def parseacf(folder, secondary, missing, nobackup, names, f, parent):
                 if not thing in secondary:
                     secondary[thing]=[f]
                     # XXX weapon airfoils!
+                    found=False
                     for ext in textypes:
                         tex2=casepath(folder,join('weapons',name[:-4]+ext))
                         if exists(join(folder,tex2)):
+                            found=True
                             secondary[tex2]=[thing]
-                            break
-                    else:
-                        missing[join('weapons',name[:-4]+'.png')]=[thing]
+                    if not found: missing[join('weapons',name[:-4]+'.png')]=[thing]
                 elif f not in secondary[thing]:
                     secondary[thing].append(f)
             elif name.lower() in names:
@@ -291,19 +291,15 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
             else:
                 raise IOError
 
-            (tex,ext)=splitext(tex)
-            if ext.lower() in textypes:
-                seq=[ext.lower()]+textypes
-            else:
-                seq=textypes
             if not names:
                 # Misc Object
-                liverytex(folder, secondary, missing, nobackup, tex, seq, f, True)
+                liverytex(folder, secondary, missing, nobackup, tex, f, True)
                 h.close()
                 return
+            (tex,origext)=splitext(tex)
             for d in [dirname(f), 'custom object textures']:
                 # look for alternate extensions before custom object textures
-                for ext in seq:
+                for ext in textypes:
                     tex2=casepath(folder, join(d, tex+ext))
                     if exists(join(folder, tex2)):
                         if not tex2 in secondary:
@@ -312,17 +308,16 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
                             secondary[tex2].append(f)
                         for lit in ['_lit', 'lit']:
                             for d in [dirname(f), 'custom object textures']:
+                                found=False
                                 for ext in textypes:
                                     tex2=casepath(folder, join(d, tex+lit+ext))
                                     if exists(join(folder, tex2)):
+                                        found=True
                                         if not tex2 in secondary:
                                             secondary[tex2]=[f]
                                         elif f not in secondary[tex2]:
                                             secondary[tex2].append(f)
-                                        break
-                                else:
-                                    continue	# next dir
-                                break		# found matching ext
+                                if found: break	# found matching ext
                             else:
                                 continue	# next lit
                             break		# found matching dir
@@ -332,9 +327,9 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
                 break		# found matching ext
             else:	# missing
                 if f.lower().startswith('custom objects'):
-                    tex2=normpath(tex+seq[0])
+                    tex2=normpath(tex+origext)
                 else:
-                    tex2=normpath(join(dirname(f), tex+seq[0]))
+                    tex2=normpath(join(dirname(f), tex+origext))
                 if tex2 not in missing:
                     missing[tex2]=[f]
                 elif f not in missing[tex2]:
@@ -353,45 +348,37 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
                 if c[0] in ['TEXTURE','TEXTURE_LIT','TEXTURE_NORMAL','TEXTURE_DRAPED'] or (kind=='BEACH' and c[0] in ['BASE_TEX','LIT_TEX']) or (kind=='DRAPED_POLYGON' and c[0] in ['TEXTURE_NOWRAP','TEXTURE_LIT_NOWRAP']) or (kind=='TERRAIN' and c[0] in ['BASE_TEX','BASE_TEX_NOWRAP','LIT_TEX','LIT_TEX_NOWRAP','BORDER_TEX','BORDER_TEX_NOWRAP','COMPOSITE_TEX','COMPOSITE_TEX_NOWRAP']):
                     # Texture
                     if kind=='AG_POINT' and c[0]=='TEXTURE_NORMAL':
-                        tex=line.strip().split(None,2)[2]
+                        tex=line.strip().split(None,2)[2:]
                     else:
-                        tex=line.strip().split(None,1)[1]
-                    tex=unicodeify(tex.replace(':','/').replace('\\','/'))
+                        tex=line.strip().split(None,1)[1:]
                     if not tex: continue
+                    tex=unicodeify(tex[0].replace(':','/').replace('\\','/'))
 
-                    (tex,ext)=splitext(tex)
-                    if kind=='OBJ':
-                        if ext.lower() in textypes:
-                            seq=[ext.lower()]+textypes
-                        else:
-                            seq=textypes
-                    else:
-                        seq=[ext.lower()]
                     if not names:
                         # Misc Object
-                        liverytex(folder, secondary, missing, nobackup, tex, seq, f)
+                        liverytex(folder, secondary, missing, nobackup, tex, f)
                         continue
+                    (tex,origext)=splitext(tex)
                     for d in [dirname(f), 'custom object textures']:
                         # look for alternate extensions before custom object textures
-                        for ext in seq:
+                        found=False
+                        for ext in textypes:
                             tex2=casepath(folder, join(d, tex+ext))
                             if exists(join(folder, tex2)):
+                                found=True
                                 if not tex2 in secondary:
                                     secondary[tex2]=[f]
                                 elif f not in secondary[tex2]:
                                     secondary[tex2].append(f)
-                                break
-                        else:
-                            continue	# next dir
-                        break		# found matching ext
+                        if found: break	# found matching ext
                     else:	# missing
                         if kind=='OBJ' and c[0]=='TEXTURE_LIT':
                             pass	# don't warn on missing obj lit tex
                         else:
                             if kind=='OBJ' and f.lower().startswith('custom objects'):
-                                tex2=normpath(tex+seq[0])
+                                tex2=normpath(tex+origext)
                             else:
-                                tex2=normpath(join(dirname(f), tex+seq[0]))
+                                tex2=normpath(join(dirname(f), tex+origext))
                             if tex2 not in missing:
                                 missing[tex2]=[f]
                             elif f not in missing[tex2]:
@@ -429,36 +416,37 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
             missing[f].append(parent)
 
 
-def liverytex(folder, secondary, missing, nobackup, tex, seq, parent, dolit=False):
+def liverytex(folder, secondary, missing, nobackup, tex, parent, dolit=False):
     base=dirname(parent)
-    for ext in seq:
+    found=False
+    (tex,origext)=splitext(tex)
+    for ext in textypes:
         tex2=casepath(folder, join(base,tex+ext))
         if exists(join(folder, tex2)):
+            found=True
             if not tex2 in secondary:
                 secondary[tex2]=[parent]
             elif parent not in secondary[tex2]:
                 secondary[tex2].append(parent)
-            break
-    else:
+    if not found:
         tex2=join(base, tex)
         if tex not in missing:
-            missing[tex]=[parent]
+            missing[tex+origext]=[parent]
         elif parent not in missing[tex]:
-            missing[tex].append(parent)
+            missing[tex+origext].append(parent)
 
     if dolit:
         for lit in ['_lit', 'lit']:
+            found=False
             for ext in textypes:
                 tex2=casepath(folder, join(base, tex+lit+ext))
                 if exists(join(folder, tex2)):
+                    found=True
                     if not tex2 in secondary:
                         secondary[tex2]=[parent]
                     elif parent not in secondary[tex2]:
                         secondary[tex2].append(parent)
-                    break
-            else:
-                continue
-            break
+            if found: break
         
     livdir=casepath(folder, 'liveries')
     if not isdir(join(folder, livdir)): return
@@ -468,28 +456,26 @@ def liverytex(folder, secondary, missing, nobackup, tex, seq, parent, dolit=Fals
         else:
             objdir=join(livdir, objbase)
         if not isdir(join(folder, objdir)): continue
-        for ext in seq:
+        for ext in textypes:
             tex2=join(objdir, casepath(join(folder, objdir), tex+ext))
             if exists(join(folder, tex2)):
                 if not tex2 in secondary:
                     secondary[tex2]=[parent]
                 elif parent not in secondary[tex2]:
                     secondary[tex2].append(parent)
-                break
     
         if dolit:
             for lit in ['_lit', 'lit']:
+                found=False
                 for ext in textypes:
                     tex2=join(objdir, casepath(join(folder, objdir), tex+lit+ext))
                     if exists(join(folder, tex2)):
+                        found=True
                         if not tex2 in secondary:
                             secondary[tex2]=[parent]
                         elif parent not in secondary[tex2]:
                             secondary[tex2].append(parent)
-                        break
-                else:
-                    continue
-                break
+                if found: break
 
 
 def parsedsf(folder, secondary, missing, nobackup, names, f, parent):
