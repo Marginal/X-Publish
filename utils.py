@@ -19,7 +19,7 @@ except:
     tkMessageBox.showerror("Error", "wxPython is not installed.\nThis application requires wxPython 2.5.3 or later.")
     exit(1)
 
-app=wx.App()
+app=wx.App(redirect=not __debug__)
 
 def choosefolder():
     if platform=='win32':
