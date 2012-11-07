@@ -1,10 +1,10 @@
 [Desktop Entry]
-Encoding=UTF-8
+Version=1.0
 Name=X-Publish
 Comment=X-Plane package publisher
 Exec=xpublish
-Icon=X-Publish
+Icon=xpublish
 Terminal=false
 Type=Application
 StartupNotify=true
-Categories=GNOME;GTK;Graphics
+Categories=GNOME;GTK;Graphics;
