@@ -264,6 +264,54 @@ def scanlib(names, f, lib):
             print_exc()
         die("Can't read %s" % f)
 
+
+def parsegtc(folder, secondary, missing, nobackup, names, f, parent):
+    try:
+        doingtrain=False
+        h=file(join(folder, f), 'rU')
+        for passtype in ['route', 'train']:	# have to do two passes since train may be defined after route
+            h.seek(0)
+            for line in h:
+                line=line.strip()
+                if not line:
+                    doingtrain=False
+                    continue
+                line=line.split('#')[0].strip()
+                if not line: continue
+                cmd=line.split()[0]
+                line=line[len(cmd):].strip()
+                if cmd==passtype=='route' or doingtrain:
+                    obj=casepath(folder, unicodeify(line.split(None, doingtrain and 2 or 3)[-1].replace(':','/')))
+                    if exists(join(folder,obj)):
+                        if obj not in secondary:
+                            parseobj(folder, secondary, missing, nobackup, names, obj, f)
+                        elif f not in secondary[obj]:
+                            secondary[obj].append(f)
+                    elif obj in names:	# library obj
+                        if names[obj]:
+                            if obj not in nobackup:
+                                nobackup[obj]=[f]
+                            elif f not in nobackup[obj]:
+                                nobackup[obj].append(f)
+                    elif obj not in missing:
+                        missing[obj]=[f]
+                    elif f not in missing[obj]:
+                        missing[obj].append(f)
+                elif cmd==passtype=='train':
+                    doingtrain=True
+                    obj=line.replace(':','/')
+                    if obj in missing:
+                        missing[obj].remove(f)
+                        if not missing[obj]:
+                            missing.pop(obj)
+        h.close()
+    except:
+        if __debug__:
+            print f
+            print_exc()
+        die("Can't read %s" % f)
+
+
 # read object
 # if names, this is a scenery object
 # if not names, this is an aircraft misc object, so also look in liveries

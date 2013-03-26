@@ -41,13 +41,14 @@ flen=len(folder)+1
 acf=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '*.[aA][cC][fF]'))])
 
 lib=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]'))])
+gtc=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[gG][rR][oO][uU][nN][dD][tT][rR][aA][fF][fF][iI][cC].[tT][xX][tT]'))])
 apt=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[eE][aA][rR][tT][hH] [nN][aA][vV] [dD][aA][tT][aA]', '[aA][pPtT][tTcC].[dD][aA][tT]'))])
 dsf=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[eE][aA][rR][tT][hH] [nN][aA][vV] [dD][aA][tT][aA]', '[+-][0-9]0[+-][01][0-9]0', '[+-][0-9][0-9][+-][01][0-9][0-9].[dD][sS][fF]'))])
 
 htm=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '*.[hH][tT][mM][lL]'))+glob(join(folder, '*.[hH][tT][mM]'))])
 txt=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '*.[tT][xX][tT]'))+glob(join(folder, '*.[pP][dD][fF]'))+glob(join(folder, '*.[jJ][pP][gG]'))+glob(join(folder, '*.[jJ][pP][eE][gG]'))+glob(join(folder, '*.[dD][oO][cC]'))+glob(join(folder, '*.[rR][tT][fF]'))+glob(join(folder, '*.[dD][aA][tT]'))])
-for f in lib.keys():
-    if f in txt: txt.pop(f)	# don't list library.txt twice
+for f in lib.keys() + gtc.keys():
+    if f in txt: txt.pop(f)	# don't list library.txt or groundtraffic.txt twice
 txt.pop('summary.txt',None)	# skip FS2XPlane summary
 
 if glob(join(folder, '[eE][aA][rR][tT][hH] [nN][aA][vV] [dD][aA][tT][aA]', '[+-][0-9]0[+-][01][0-9]0', '[+-][0-9][0-9][+-][01][0-9][0-9].[eE][nN][vV]')):
@@ -63,6 +64,7 @@ if acf:
 else:
     primary=dict(apt)
     primary.update(lib)
+    primary.update(gtc)
     primary.update(dsf)
 misc=dict(txt)
 misc.update(htm)
@@ -140,7 +142,7 @@ else:
     # get names so we don't complain about use of library objects
     names={'terrain_Water':None}
     for f in glob(join(folder, pardir, pardir, '[rR][eE][sS][oO][uU][rR][cC][eE][sS]', '[dD][eE][fF][aA][uU][lL][tT] [sS][cC][eE][nN][eE][rR][yY]', '*', '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]')):
-        scanlib(names, f, None)
+        scanlib(names, f, None)		# Don't need placeholder for system libraries
     for f in glob(join(folder, pardir, '*', '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]')):
         pkgname=basename(dirname(f))
         if pkgname==basename(folder):
@@ -152,6 +154,8 @@ else:
         parseapt(folder, secondary, missing, nobackup, names, f, None)
     for f in lib.keys():
         parselib(folder, secondary, missing, nobackup, names, f, None)
+    for f in gtc.keys():
+        parsegtc(folder, secondary, missing, nobackup, names, f, None)
     for f in dsf.keys():
         parsedsf(folder, secondary, missing, nobackup, names, f, None)
 
