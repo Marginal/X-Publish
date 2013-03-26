@@ -46,7 +46,7 @@ apt=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[eE][aA][rR]
 dsf=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[eE][aA][rR][tT][hH] [nN][aA][vV] [dD][aA][tT][aA]', '[+-][0-9]0[+-][01][0-9]0', '[+-][0-9][0-9][+-][01][0-9][0-9].[dD][sS][fF]'))])
 
 htm=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '*.[hH][tT][mM][lL]'))+glob(join(folder, '*.[hH][tT][mM]'))])
-txt=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '*.[tT][xX][tT]'))+glob(join(folder, '*.[pP][dD][fF]'))+glob(join(folder, '*.[jJ][pP][gG]'))+glob(join(folder, '*.[jJ][pP][eE][gG]'))+glob(join(folder, '*.[dD][oO][cC]'))+glob(join(folder, '*.[rR][tT][fF]'))+glob(join(folder, '*.[dD][aA][tT]'))])
+txt=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '*.[tT][xX][tT]'))+glob(join(folder, '*.[pP][dD][fF]'))+glob(join(folder, '*.[jJ][pP][gG]'))+glob(join(folder, '*.[jJ][pP][eE][gG]'))+glob(join(folder, '*.[dD][oO][cC]'))+glob(join(folder, '*.[rR][tT][fF]'))+glob(join(folder, '*.[dD][aA][tT]'))+glob(join(folder, '*.[iI][nN][iI]'))])
 for f in lib.keys() + gtc.keys():
     if f in txt: txt.pop(f)	# don't list library.txt or groundtraffic.txt twice
 txt.pop('summary.txt',None)	# skip FS2XPlane summary
@@ -158,6 +158,13 @@ else:
         parsegtc(folder, secondary, missing, nobackup, names, f, None)
     for f in dsf.keys():
         parsedsf(folder, secondary, missing, nobackup, names, f, None)
+
+plugins=casepath(folder,'plugins')
+if exists(join(folder,plugins)):
+    for path, dirs, files in walk(join(folder,plugins)):
+        for thing in files:
+            if thing[-4:].lower()=='.xpl':
+                secondary[unicodeify(join(path,thing)[flen:])]=['?']
 
 # last so don't double-count stuff already in misc
 for f in htm.keys():
