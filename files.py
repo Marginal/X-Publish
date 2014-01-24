@@ -387,20 +387,33 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
 
         else:
             kind=h.readline().split()[0]
-            if not kind in ['AG_POINT','BEACH','FACADE','FOREST','LINE_PAINT','ROADS','OBJ','DRAPED_POLYGON','OBJECT_STRING','TERRAIN']:
+            if not kind in ['AG_POINT','BEACH','DECAL','FACADE','FOREST','LINE_PAINT','ROADS','OBJ','DRAPED_POLYGON','OBJECT_STRING','TERRAIN']:
                 raise IOError
             for line in h:
                 c=line.split('#')[0].split('//')[0].split()
                 if not c: continue
                 if kind=='OBJ' and c[0]=='POINT_COUNTS': break	# early exit
-                if c[0] in ['TEXTURE','TEXTURE_LIT','TEXTURE_NORMAL','TEXTURE_DRAPED'] or (kind=='BEACH' and c[0] in ['BASE_TEX','LIT_TEX']) or (kind=='DRAPED_POLYGON' and c[0] in ['TEXTURE_NOWRAP','TEXTURE_LIT_NOWRAP']) or (kind=='TERRAIN' and c[0] in ['BASE_TEX','BASE_TEX_NOWRAP','LIT_TEX','LIT_TEX_NOWRAP','BORDER_TEX','BORDER_TEX_NOWRAP','COMPOSITE_TEX','COMPOSITE_TEX_NOWRAP']):
+                if (c[0] in ['TEXTURE','TEXTURE_LIT','TEXTURE_NORMAL','TEXTURE_DRAPED','TEXTURE_DRAPED_NORMAL',
+                             'TEXTURE_CONTROL','TEXTURE_CONTROL_NOWRAP','TEXTURE_DETAIL','TEXTURE_TERRAIN','TEXTURE_TILE',
+                             'DECAL','DECAL_RGBA','DECAL_PARAMS','DECAL_PARAMS_PROJ'] or
+                    (kind=='DRAPED_POLYGON' and c[0] in ['TEXTURE_NOWRAP','TEXTURE_LIT_NOWRAP']) or
+                    (kind=='BEACH' and c[0] in ['BASE_TEX','LIT_TEX']) or
+                    (kind=='TERRAIN' and c[0] in ['BASE_TEX','BASE_TEX_NOWRAP','LIT_TEX','LIT_TEX_NOWRAP','NORMAL_TEX','NORMAL_TEX_NOWRAP','BORDER_TEX','BORDER_TEX_WRAP','BORDER_TEX_NOWRAP','COMPOSITE_TEX','COMPOSITE_TEX_NOWRAP'])):
                     # Texture
                     if kind=='AG_POINT' and c[0]=='TEXTURE_NORMAL':
-                        tex=line.strip().split(None,2)[2:]
+                        tex = line.strip().split(None,2)[-1]
+                    elif c[0] in ['DECAL','DECAL_RGBA']:
+                        tex = line.strip().split(None,2)[-1]
+                    elif c[0] in ['TEXTURE_DETAIL','TEXTURE_TERRAIN']:
+                        tex = line.strip().split(None,3)[-1]
+                    elif c[0]=='TEXTURE_TILE':
+                        tex = line.strip().split(None,5)[-1]
+                    elif c[0] in ['DECAL_PARAMS','DECAL_PARAMS_PROJ']:
+                        tex = line.strip().split(None,15)[-1]
                     else:
-                        tex=line.strip().split(None,1)[1:]
+                        tex = line.strip().split(None,1)[-1]
                     if not tex: continue
-                    tex=unicodeify(tex[0].replace(':','/').replace('\\','/'))
+                    tex = unicodeify(tex.replace(':','/').replace('\\','/'))
 
                     if not names:
                         # Misc Object
@@ -432,7 +445,9 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
                             elif f not in missing[tex2]:
                                 missing[tex2].append(f)
 
-                elif kind=='AG_POINT' and c[0] in ['VEGETATION','OBJECT']:
+                elif ((kind=='AG_POINT' and c[0] in ['VEGETATION','OBJECT']) or
+                      (kind=='FACADE' and c[0]=='OBJ') or
+                      (kind=='DECAL' and c[0]=='DECAL_LIB')):
                     # Sub-object
                     obj=unicodeify(c[1].replace(':','/'))
                     obj2=casepath(folder, join(dirname(f),obj))
