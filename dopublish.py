@@ -1,6 +1,6 @@
 from glob import glob
 from os import listdir, unlink, walk
-from os.path import basename, dirname, exists, isdir, join, pardir, sep
+from os.path import basename, dirname, exists, isdir, join, normpath, pardir, sep
 from sys import exit
 from urllib import quote
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -137,13 +137,13 @@ def publish(folder, app):
         # get names so we don't complain about use of library objects
         names={'terrain_Water':None}
         for f in glob(join(folder, pardir, pardir, '[rR][eE][sS][oO][uU][rR][cC][eE][sS]', '[dD][eE][fF][aA][uU][lL][tT] [sS][cC][eE][nN][eE][rR][yY]', '*', '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]')):
-            scanlib(names, f, None)		# Don't need placeholder for system libraries
-        for f in lib.keys():
-            scanlib(names, f, None)		# Don't need placeholder for this pkg
+            scanlib(names, normpath(f), None)		# Don't need placeholder for system libraries
+        for f in glob(join(folder, '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]')):
+            scanlib(names, normpath(f), None)		# Don't need placeholder for this pkg
         for f in glob(join(folder, pardir, '*', '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]')):
             pkgname=basename(dirname(f))
             if pkgname!=basename(folder):
-                scanlib(names, f, pkgname)
+                scanlib(names, normpath(f), pkgname)
 
         for f in apt.keys():
             parseapt(folder, secondary, missing, nobackup, names, f, None)
