@@ -256,7 +256,8 @@ def scanlib(names, f, lib):
                 name=unicodeify(c[1])
                 name=name.replace(':','/')
                 name=name.replace('\\','/')
-                names[name]=lib
+                if name not in names:
+                    names[name]=lib
         h.close()
     except:
         if __debug__:

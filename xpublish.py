@@ -143,11 +143,11 @@ else:
     names={'terrain_Water':None}
     for f in glob(join(folder, pardir, pardir, '[rR][eE][sS][oO][uU][rR][cC][eE][sS]', '[dD][eE][fF][aA][uU][lL][tT] [sS][cC][eE][nN][eE][rR][yY]', '*', '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]')):
         scanlib(names, f, None)		# Don't need placeholder for system libraries
+    for f in lib.keys():
+        scanlib(names, f, None)		# Don't need placeholder for this pkg
     for f in glob(join(folder, pardir, '*', '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]')):
         pkgname=basename(dirname(f))
-        if pkgname==basename(folder):
-            scanlib(names, f, None)	# Don't need placeholder for this pkg
-        else:
+        if pkgname!=basename(folder):
             scanlib(names, f, pkgname)
 
     for f in apt.keys():
