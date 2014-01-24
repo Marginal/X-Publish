@@ -267,26 +267,34 @@ def scanlib(names, f, lib):
 
 def parsegtc(folder, secondary, missing, nobackup, names, f, parent):
     try:
-        doingtrain=False
+        doingtrain = doinghighway = False
         h=file(join(folder, f), 'rU')
         for passtype in ['route', 'train']:	# have to do two passes since train may be defined after route
             h.seek(0)
             for line in h:
                 line=line.strip()
                 if not line:
-                    doingtrain=False
+                    doingtrain = doinghighway = False
                     continue
                 line=line.split('#')[0].strip()
                 if not line: continue
                 cmd=line.split()[0]
-                line=line[len(cmd):].strip()
-                if cmd==passtype=='route' or doingtrain:
-                    obj=casepath(folder, unicodeify(line.split(None, doingtrain and 2 or 3)[-1].replace(':','/')))
-                    if exists(join(folder,obj)):
+                if cmd==passtype=='route' or doingtrain or doinghighway:
+                    line = line.split(None, (doinghighway and 2) or (doingtrain and 3) or 4)
+                    if doinghighway:
+                        if len(line) != 3:
+                            doinghighway = False	# on to waypoints
+                            continue
+                    else:
+                        if len(line) != (doingtrain and 4 or 5):
+                            continue		# syntax error
+                    obj = unicodeify(line[-1].replace(':','/'))
+                    obj2 = casepath(folder, obj)
+                    if exists(join(folder,obj2)):
                         if obj not in secondary:
-                            parseobj(folder, secondary, missing, nobackup, names, obj, f)
-                        elif f not in secondary[obj]:
-                            secondary[obj].append(f)
+                            parseobj(folder, secondary, missing, nobackup, names, obj2, f)
+                        elif f not in secondary[obj2]:
+                            secondary[obj2].append(f)
                     elif obj in names:	# library obj
                         if names[obj]:
                             if obj not in nobackup:
@@ -299,11 +307,13 @@ def parsegtc(folder, secondary, missing, nobackup, names, f, parent):
                         missing[obj].append(f)
                 elif cmd==passtype=='train':
                     doingtrain=True
-                    obj=line.replace(':','/')
+                    obj=line.split(None,1)[-1].replace(':','/')
                     if obj in missing:
                         missing[obj].remove(f)
                         if not missing[obj]:
                             missing.pop(obj)
+                elif cmd=='highway' and passtype=='route':
+                    doinghighway=True
         h.close()
     except:
         if __debug__:
