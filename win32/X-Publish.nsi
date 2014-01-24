@@ -62,6 +62,10 @@ Section "Uninstall"
   Delete "$SMPROGRAMS\X-Publish.lnk"
   Delete "$INSTDIR\X-Publish.exe"
   Delete "$INSTDIR\X-Publish.exe.log"
+  Delete "$INSTDIR\python27.dll"
+  Delete "$INSTDIR\*.pyd"		; unbundled
+  Delete "$INSTDIR\wx*.dll"		; unbundled
+  Delete "$INSTDIR\w9xpopen.exe"	; used to include this
   Delete "$INSTDIR\uninstall.exe"
   RMDir /r "$INSTDIR\Microsoft.VC90.CRT"
   RMDir "$INSTDIR"

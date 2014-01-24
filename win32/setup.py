@@ -65,7 +65,7 @@ setup(name='X-Publish',
                     ],
       options = {'py2exe': {'ascii':True,	# suppresss encodings?
                             'dll_excludes':['w9xpopen.exe'],
-                            'bundle_files':True,
+                            #'bundle_files':True,	# not compatible with DEP
                             'compressed':True,
                             'excludes':['Carbon', 'tcl', 'Tkinter', 'mx', 'webbrowser'],
                             'packages':['encodings.ascii','encodings.mbcs','encodings.latin_1','encodings.utf_8','encodings.utf_16','encodings.cp437','encodings.cp850'],
