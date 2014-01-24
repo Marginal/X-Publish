@@ -239,17 +239,17 @@ h.write('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n'
         '  <h1><a href="file:///%s"><abbr title="This is the location of the created .zip archive for publication">%s</abbr></a></h1>\n'
         '  <table width="100%%" border="0" cellpadding="2">\n' % (title, quote(zipname.encode('utf-8').replace('\\','/')), zipname.encode('utf-8').replace(' ','&nbsp;')))
 if acf:
-    dosection(h, folder, primary, False, 'lightskyblue', '<abbr title="These files have been included in the .zip archive">Aircraft</abbr>')
+    dosection(h, folder, primary, True, False, 'lightgreen', '<abbr title="These files have been included in the .zip archive">Aircraft</abbr>')
 else:
-    dosection(h, folder, primary, False, 'lightskyblue', '<abbr title="These files have been included in the .zip archive">Primary files</abbr>')
-if misc: dosection(h, folder, misc, False, 'lightskyblue', '<abbr title="These files look like documentation and so have been included in the .zip archive.">Documentation</abbr>')
+    dosection(h, folder, primary, True, False, 'lightgreen', '<abbr title="These files have been included in the .zip archive">Primary files</abbr>')
+if misc: dosection(h, folder, misc, True, False, 'lightgreen', '<abbr title="These files look like documentation and so have been included in the .zip archive.">Documentation</abbr>')
 if acf:
-    if secondary: dosection(h, folder, secondary, True, 'lightskyblue', '<abbr title="These files are referenced by the Aircraft .acf and so have been included in the .zip archive.">Included files</abbr>')
+    if secondary: dosection(h, folder, secondary, True, True, 'lightgreen', '<abbr title="These files are referenced by the Aircraft .acf and so have been included in the .zip archive.">Included files</abbr>')
 else:
-    if secondary: dosection(h, folder, secondary, True, 'lightskyblue', '<abbr title="These files are referenced by the &ldquo;Primary files&rdquo; and so have been included in the .zip archive.">Included files</abbr>')
-if unused: dosection(h, folder, unused, False, 'darkgray', '<abbr title="These files are not referenced by the files above, and so have been omitted from the .zip archive.">Unused X-Plane files</abbr>')
-if missing: dosection(h, folder, missing, True, 'red', '<abbr title="These files are referenced by the files above but are missing or unreadable, and so have been omitted from the .zip archive.">Missing or Unreadable</abbr>')
-if nobackup: dosection(h, folder, nobackup, True, 'tomato', '<abbr title="This package will cause X-Plane to crash unless the user has installed a library which provides these objects. Consider adding a &ldquo;placeholder&rdquo; library.txt that covers these files.">Missing from a Placeholder Library</abbr>')
+    if secondary: dosection(h, folder, secondary, True, True, 'lightgreen', '<abbr title="These files are referenced by the &ldquo;Primary files&rdquo; and so have been included in the .zip archive.">Included files</abbr>')
+if unused: dosection(h, folder, unused, True, False, 'darkgray', '<abbr title="These files are not referenced by the files above, and so have been omitted from the .zip archive.">Unused X-Plane files</abbr>')
+if missing: dosection(h, folder, missing, False, True, 'red', '<abbr title="These files are referenced by the files above but are missing or unreadable, and so have been omitted from the .zip archive.">Missing or Unreadable</abbr>')
+if nobackup: dosection(h, folder, nobackup, False, True, 'orange', '<abbr title="X-Plane will complain unless the user has installed a library which provides these objects. Consider adding a &ldquo;placeholder&rdquo; library.txt that covers these files.">No Placeholder library</abbr>')
 h.write('  </table>\n'
         '</body>\n'
         '</html>\n')

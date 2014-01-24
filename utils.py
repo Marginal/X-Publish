@@ -147,7 +147,7 @@ def viewer(filename):
     except:
         pass
 
-def dosection(h, folder, files, doref, col, heading):
+def dosection(h, folder, files, dolink, doref, col, heading):
     h.write('    <tr>\n'
             '      <th style="background-color: %s;">%s</th>\n' % (col, heading))
     if doref:
@@ -169,10 +169,14 @@ def dosection(h, folder, files, doref, col, heading):
         else:
             sortfolded(refs)
             refstring=(', '.join(['<a href="file:///%s">%s</a>' % (quote(join(folder,ref).encode('utf-8').replace('\\','/')), ref.encode('utf-8').replace('&','&amp;')) for ref in refs if ref!='?']))
+        if dolink:
+            linkstring='<a href="%s">%s</a>' % ('file:///'+quote(join(folder,key).encode('utf-8').replace('\\','/')), key.encode('utf-8').replace('&','&amp;'))
+        else:
+            linkstring=key.encode('utf-8').replace('&','&amp;')
         h.write('    <tr>\n'
-                '      <td><a href="%s">%s</a></td>\n'
                 '      <td>%s</td>\n'
-                '    </tr>\n' % ('file:///'+quote(join(folder,key).encode('utf-8').replace('\\','/')), key.encode('utf-8').replace('&','&amp;'), refstring))
+                '      <td>%s</td>\n'
+                '    </tr>\n' % (linkstring, refstring))
     h.write('    <tr>\n'
             '      <td>&nbsp;</td>\n'
             '      <td></td>\n'
