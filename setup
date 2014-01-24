@@ -12,7 +12,7 @@ rm -f {APPLINUX}_$VERSION-$RELEASE_all.deb
 rm -f ${APPNAME}_${VER}_mac.zip
 rm -rf ${APPNAME}.app
 
-PY='xpublish.py files.py utils.py version.py'
+PY='xpublish.py dopublish.py files.py utils.py version.py'
 
 # linux
 RPM=/tmp/${APPLINUX}
