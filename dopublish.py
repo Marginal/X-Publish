@@ -37,7 +37,7 @@ def publish(folder, app):
     dsf=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[eE][aA][rR][tT][hH] [nN][aA][vV] [dD][aA][tT][aA]', '[+-][0-9]0[+-][01][0-9]0', '[+-][0-9][0-9][+-][01][0-9][0-9].[dD][sS][fF]'))])
 
     htm=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '*.[hH][tT][mM][lL]'))+glob(join(folder, '*.[hH][tT][mM]'))])
-    txt=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '*.[tT][xX][tT]'))+glob(join(folder, '*.[pP][dD][fF]'))+glob(join(folder, '*.[jJ][pP][gG]'))+glob(join(folder, '*.[jJ][pP][eE][gG]'))+glob(join(folder, '*.[dD][oO][cC]'))+glob(join(folder, '*.[rR][tT][fF]'))+glob(join(folder, '*.[dD][aA][tT]'))+glob(join(folder, '*.[iI][nN][iI]'))])
+    txt=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[rR][eE][aA][dD][mM][eE]'))+glob(join(folder, '*.[tT][xX][tT]'))+glob(join(folder, '*.[pP][dD][fF]'))+glob(join(folder, '*.[jJ][pP][gG]'))+glob(join(folder, '*.[jJ][pP][eE][gG]'))+glob(join(folder, '*.[dD][oO][cC]'))+glob(join(folder, '*.[rR][tT][fF]'))+glob(join(folder, '*.[dD][aA][tT]'))+glob(join(folder, '*.[iI][nN][iI]'))])
     for f in lib.keys() + gtc.keys():
         if f in txt: txt.pop(f)	# don't list library.txt or groundtraffic.txt twice
     txt.pop('summary.txt',None)	# skip FS2XPlane summary
@@ -130,6 +130,27 @@ def publish(folder, app):
                         if thing[-4:].lower() in cocktypes:
                             secondary[unicodeify(join(path,thing)[flen:])]=['?']
 
+        # SASL
+        avionics='?'
+        for thing in listdir(folder):
+            if thing.lower()=='avionics.lua':
+                avionics = unicodeify(join(folder,thing)[flen:])
+                secondary[avionics]=['?']
+        sasl=casepath(folder,'custom avionics')
+        if exists(join(folder,sasl)):
+            for path, dirs, files in walk(join(folder,sasl)):
+                for thing in files:
+                    if thing[-4:].lower() in ['.lua','.png','.tga']:
+                        secondary[unicodeify(join(path,thing)[flen:])]=[avionics]
+
+        # Gizmo
+        gizmo=casepath(folder,'scripts')
+        if exists(join(folder,gizmo)):
+            for path, dirs, files in walk(join(folder,gizmo)):
+                for thing in files:
+                    if thing[-4:].lower() in ['.key','.lua','.png','.tga']:
+                        secondary[unicodeify(join(path,thing)[flen:])]=['?']
+
         #if exists(join(folder,'plane.txt')) and exists(join(folder,'plane.jpg')):
         #    misc['plane.jpg']=['plane.txt']
 
@@ -154,12 +175,12 @@ def publish(folder, app):
         for f in dsf.keys():
             parsedsf(folder, secondary, missing, nobackup, names, f, None)
 
-    plugins=casepath(folder,'plugins')
-    if exists(join(folder,plugins)):
-        for path, dirs, files in walk(join(folder,plugins)):
-            for thing in files:
-                if thing[-4:].lower()=='.xpl':
-                    secondary[unicodeify(join(path,thing)[flen:])]=['?']
+    for plugin in glob(join(folder,'[pP][lL][uU][gG][iI][nN][sS]','*')):
+        if isdir(plugin):
+            for path, dirs, files in walk(plugin):
+                for thing in files:
+                    if thing[-4:].lower() in ['.dll','.lua','.png','.tga','.txt','.xpl']:
+                        secondary[unicodeify(join(path,thing)[flen:])]=[plugin[flen:]]
 
     # last so don't double-count stuff already in misc
     for f in htm.keys():
@@ -179,7 +200,7 @@ def publish(folder, app):
     # unused
     for path, dirs, files in walk(folder):
         for thing in files:
-            if thing[-4:].lower() in ['.acf', '.afl', '.agp', '.bch', '.bmp', '.dat', '.dcl', '.dds', '.dsf', '.fac', '.for', '.lin', '.net', '.obj', '.pol', '.png', '.str', '.ter', '.txt', '.wav', '.wpn'] and join(path,thing)[flen:] not in keys:
+            if thing[-4:].lower() in ['.acf', '.afl', '.agp', '.bch', '.bmp', '.dat', '.dcl', '.dds', '.dsf', '.fac', '.for', '.lin', '.lua', '.net', '.obj', '.pol', '.png', '.str', '.ter', '.tga', '.txt', '.wav', '.wpn'] and join(path,thing)[flen:] not in keys:
                 unused[unicodeify(join(path,thing)[flen:])]=['?']
 
     # Do output
