@@ -2,19 +2,20 @@
 
 from os import getenv, listdir
 from os.path import expanduser, exists, isdir, join, normpath
+import sys	# for path, version
 from sys import argv, exit, platform, getfilesystemencoding
-from time import sleep
 
 if platform.lower().startswith('linux') and not getenv("DISPLAY"):
     print "Can't run: DISPLAY is not set"
     exit(1)
 
 try:
+    if platform=='darwin': sys.path.insert(0, join(sys.path[0],sys.version[:3]))
     import wx
 except:
     import Tkinter, tkMessageBox
     Tkinter.Tk().withdraw()
-    tkMessageBox.showerror("Error", "wxPython is not installed.\nThis application requires wxPython 2.5.3 or later.")
+    tkMessageBox.showerror("Error", "wxPython is not installed.\nThis application requires wxPython 2.8 or later.")
     exit(1)
 
 
