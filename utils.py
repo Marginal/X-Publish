@@ -1,6 +1,6 @@
 import os
 from os import listdir
-from os.path import abspath, join, normpath, sep
+from os.path import abspath, basename, dirname, join, normpath, sep
 from sys import exit
 import types
 import unicodedata
@@ -66,7 +66,7 @@ def viewer(filename):
     except:
         pass
 
-def dosection(h, folder, files, dolink, doref, col, heading):
+def dosection(h, folder, files, dolink, doref, dolib, col, heading):
     h.write('    <tr>\n'
             '      <th style="background-color: %s;">%s</th>\n' % (col, heading))
     if doref:
@@ -88,8 +88,10 @@ def dosection(h, folder, files, dolink, doref, col, heading):
         else:
             sortfolded(refs)
             refstring=(', '.join(['<a href="file:///%s">%s</a>' % (quote(join(folder,ref).encode('utf-8').replace('\\','/')), ref.encode('utf-8').replace('&','&amp;')) for ref in refs if ref!='?']))
-        if dolink:
-            linkstring='<a href="%s">%s</a>' % ('file:///'+quote(join(folder,key).encode('utf-8').replace('\\','/')), key.encode('utf-8').replace('&','&amp;'))
+        if dolib:
+            linkstring = '<a href="%s">%s</a>' % ('file:///'+quote(dolib[key].encode('utf-8').replace('\\','/')), basename(dirname(dolib[key])).encode('utf-8').replace('&','&amp;')) + ' : ' + key.encode('utf-8').replace('&','&amp;')
+        elif dolink:
+            linkstring = '<a href="%s">%s</a>' % ('file:///'+quote(join(folder,key).encode('utf-8').replace('\\','/')), key.encode('utf-8').replace('&','&amp;'))
         else:
             linkstring=key.encode('utf-8').replace('&','&amp;')
         h.write('    <tr>\n'

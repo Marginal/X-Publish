@@ -162,9 +162,8 @@ def publish(folder, app):
         for f in glob(join(folder, '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]')):
             scanlib(names, normpath(f), None)		# Don't need placeholder for this pkg
         for f in glob(join(folder, pardir, '*', '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]')):
-            pkgname=basename(dirname(f))
-            if pkgname!=basename(folder):
-                scanlib(names, normpath(f), pkgname)
+            if basename(dirname(f))!=basename(folder):
+                scanlib(names, normpath(f), normpath(f))
 
         for f in apt.keys():
             parseapt(folder, secondary, missing, nobackup, names, f, None)
@@ -200,7 +199,7 @@ def publish(folder, app):
     # unused
     for path, dirs, files in walk(folder):
         for thing in files:
-            if thing[-4:].lower() in ['.acf', '.afl', '.agp', '.bch', '.bmp', '.dat', '.dcl', '.dds', '.dsf', '.fac', '.for', '.lin', '.lua', '.net', '.obj', '.pol', '.png', '.str', '.ter', '.tga', '.txt', '.wav', '.wpn'] and join(path,thing)[flen:] not in keys:
+            if not thing.startswith('._') and thing[-4:].lower() in ['.acf', '.afl', '.agp', '.bch', '.bmp', '.dat', '.dcl', '.dds', '.dsf', '.fac', '.for', '.lin', '.lua', '.net', '.obj', '.pol', '.png', '.str', '.ter', '.tga', '.txt', '.wav', '.wpn'] and join(path,thing)[flen:] not in keys:
                 unused[unicodeify(join(path,thing)[flen:])]=['?']
 
     # Do output
@@ -255,17 +254,17 @@ def publish(folder, app):
             '  <h1><a href="file:///%s"><abbr title="This is the location of the created .zip archive for publication">%s</abbr></a></h1>\n'
             '  <table width="100%%" border="0" cellpadding="2">\n' % (title, quote(zipname.encode('utf-8').replace('\\','/')), zipname.encode('utf-8').replace(' ','&nbsp;')))
     if acf:
-        dosection(h, folder, primary, True, False, 'lightgreen', '<abbr title="These files have been included in the .zip archive">Aircraft</abbr>')
+        dosection(h, folder, primary, True, False, False, 'lightgreen', '<abbr title="These files have been included in the .zip archive">Aircraft</abbr>')
     else:
-        dosection(h, folder, primary, True, False, 'lightgreen', '<abbr title="These files have been included in the .zip archive">Primary files</abbr>')
-    if misc: dosection(h, folder, misc, True, False, 'lightgreen', '<abbr title="These files look like documentation and so have been included in the .zip archive.">Documentation</abbr>')
+        dosection(h, folder, primary, True, False, False, 'lightgreen', '<abbr title="These files have been included in the .zip archive">Primary files</abbr>')
+    if misc: dosection(h, folder, misc, True, False, False, 'lightgreen', '<abbr title="These files look like documentation and so have been included in the .zip archive.">Documentation</abbr>')
     if acf:
-        if secondary: dosection(h, folder, secondary, True, True, 'lightgreen', '<abbr title="These files are referenced by the Aircraft .acf and so have been included in the .zip archive.">Included files</abbr>')
+        if secondary: dosection(h, folder, secondary, True, True, False, 'lightgreen', '<abbr title="These files are referenced by the Aircraft .acf and so have been included in the .zip archive.">Included files</abbr>')
     else:
-        if secondary: dosection(h, folder, secondary, True, True, 'lightgreen', '<abbr title="These files are referenced by the &ldquo;Primary files&rdquo; and so have been included in the .zip archive.">Included files</abbr>')
-    if unused: dosection(h, folder, unused, True, False, 'darkgray', '<abbr title="These files are not referenced by the files above, and so have been omitted from the .zip archive.">Unused X-Plane files</abbr>')
-    if missing: dosection(h, folder, missing, False, True, 'red', '<abbr title="These files are referenced by the files above but are missing or unreadable, and so have been omitted from the .zip archive.">Missing or Unreadable</abbr>')
-    if nobackup: dosection(h, folder, nobackup, False, True, 'orange', '<abbr title="X-Plane will complain unless the user has installed a library which provides these files. Consider adding a &ldquo;placeholder&rdquo; library.txt for these files.">No Placeholder library</abbr>')
+        if secondary: dosection(h, folder, secondary, True, True, False, 'lightgreen', '<abbr title="These files are referenced by the &ldquo;Primary files&rdquo; and so have been included in the .zip archive.">Included files</abbr>')
+    if unused: dosection(h, folder, unused, True, False, False, 'darkgray', '<abbr title="These files are not referenced by the files above, and so have been omitted from the .zip archive.">Unused X-Plane files</abbr>')
+    if missing: dosection(h, folder, missing, False, True, False, 'red', '<abbr title="These files are referenced by the files above but are missing or unreadable, and so have been omitted from the .zip archive. X-Plane will complain if you don\'t provide these files.">Missing or Unreadable</abbr>')
+    if nobackup: dosection(h, folder, nobackup, False, True, names, 'orange', '<abbr title="You have used these third-party library files, and have not provided &ldquo;placeholders&rdquo; for them. X-Plane will complain unless the user has installed the library or libraries which provide these files. Consider creating a &ldquo;placeholder&rdquo; library.txt for these files.">Third-party library files</abbr>')
     h.write('  </table>\n'
             '</body>\n'
             '</html>\n')
