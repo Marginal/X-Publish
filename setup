@@ -51,9 +51,9 @@ sed s/appversion/${VERSION}/ <MacOS/Info.plist >${APPNAME}.app/Contents/Info.pli
 mkdir -p ${APPNAME}.app/Contents/MacOS
 cp -p MacOS/${EXE} ${APPNAME}.app/Contents/MacOS/
 for i in $PY; do cp -p "$i" ${APPNAME}.app/Contents/MacOS/; done
-mkdir -p ${APPNAME}.app/Contents/MacOS/2.7
-python2.7 -OO ./bundledeps.py -f wx -o ${APPNAME}.app/Contents/MacOS/2.7 ${EXE}.py	# copy wx optimized for 2.7
+mkdir -p ${APPNAME}.app/Contents/Resources/2.7
+python2.7 -OO ./bundledeps.py -o ${APPNAME}.app ${EXE}.py	# copy wx optimized for 2.7
 mkdir -p ${APPNAME}.app/Contents/Resources
 cp -p MacOS/*.icns ${APPNAME}.app/Contents/Resources/
-codesign -s "Developer ID Application: Jonathan Harris" ${APPNAME}.app
-zip -r ${APPNAME}_${VER}_mac.zip ${APPNAME}.app
+codesign --deep -s "Developer ID Application: Jonathan Harris" ${APPNAME}.app
+ditto -ck --keepParent --sequesterRsrc ${APPNAME}.app ${APPNAME}_${VER}_mac.zip

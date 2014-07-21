@@ -1,16 +1,18 @@
 #!/usr/bin/python
 
 from os import getenv, listdir
-from os.path import expanduser, exists, isdir, join, normpath
-import sys	# for path, version
-from sys import argv, exit, platform, getfilesystemencoding
+from os.path import basename, dirname, expanduser, exists, isdir, join, normpath, pardir
+import sys	# for path
+from sys import argv, exit, platform, getfilesystemencoding, version_info
 
 if platform.lower().startswith('linux') and not getenv("DISPLAY"):
     print "Can't run: DISPLAY is not set"
     exit(1)
 
 try:
-    if platform=='darwin': sys.path.insert(0, join(sys.path[0],sys.version[:3]))
+    if platform=='darwin' and basename(sys.path[0])=='MacOS':
+        sys.path.insert(0, join(dirname(sys.path[0]), 'Resources', '%d.%d' % version_info[:2]))
+    argv[0]=basename(argv[0])		# wx doesn't like non-ascii chars in argv[0]
     import wx
 except:
     import Tkinter, tkMessageBox
