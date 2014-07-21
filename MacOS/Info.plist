@@ -24,9 +24,11 @@
 	<string>X-Publish appversion, © 2007-2014 Jonathan Harris</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>10.5</string>
-        <key>NSHighResolutionCapable</key>
+	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSQuitAlwaysKeepWindows</key>
+	<false/>
 </dict>
 </plist>
