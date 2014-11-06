@@ -2,7 +2,7 @@ Summary: X-Plane package publisher
 Name: xpublish
 Version: %{version}
 Release: %{release}
-License: Creative Commons Attribution-NonCommercial-ShareAlike 3.0
+License: GPLv2
 Group: Amusements/Games
 URL: http://marginal.org.uk/x-planescenery
 Vendor: Jonathan Harris <x-plane@marginal.org.uk>

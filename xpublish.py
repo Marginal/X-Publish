@@ -11,7 +11,7 @@ if platform.lower().startswith('linux') and not getenv("DISPLAY"):
 
 try:
     if platform=='darwin' and basename(sys.path[0])=='MacOS':
-        sys.path.insert(0, join(dirname(sys.path[0]), 'Resources', '%d.%d' % version_info[:2]))
+        sys.path.insert(0, join(sys.path[0], '%d%d' % version_info[:2]))
     argv[0]=basename(argv[0])		# wx doesn't like non-ascii chars in argv[0]
     import wx
 except:
