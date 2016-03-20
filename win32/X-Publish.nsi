@@ -8,8 +8,18 @@
 SetCompressor /SOLID lzma
 RequestExecutionLevel admin
 
+; Installer manifest
+Unicode true
+ManifestSupportedOS all
+ManifestDPIAware true
+VIProductVersion "$%VERSION%.0.0"
+VIAddVersionKey "FileDescription" "X-Publish Installer"
+VIAddVersionKey "FileVersion" "$%VERSION%"
+VIAddVersionKey "LegalCopyright" "2007-2016 Jonathan Harris"
+VIAddVersionKey "ProductName" "X-Publish"
+
 Name "X-Publish $%VERSION%"
-Caption "X-Publish $%VERSION% Installer"
+Caption "X-Publish Installer"
 OutFile "X-Publish_$%VER%_win32.exe"
 InstallDir "$PROGRAMFILES\X-Publish"
 BrandingText "http://marginal.org.uk/x-planescenery"
