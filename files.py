@@ -403,7 +403,7 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
             for line in h:
                 c=line.split('#')[0].split('//')[0].split()
                 if not c: continue
-                if kind=='OBJ' and c[0]=='POINT_COUNTS': break	# early exit
+                if kind=='OBJ' and c[0]=='VT': break	# early exit
                 if (c[0] in ['TEXTURE','TEXTURE_LIT','TEXTURE_NORMAL','TEXTURE_DRAPED','TEXTURE_DRAPED_NORMAL',
                              'TEXTURE_CONTROL','TEXTURE_CONTROL_NOWRAP','TEXTURE_DETAIL','TEXTURE_TERRAIN','TEXTURE_TILE',
                              'DECAL','DECAL_RGBA','DECAL_PARAMS','DECAL_PARAMS_PROJ'] or
