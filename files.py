@@ -458,9 +458,10 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
 
                 elif ((kind=='AG_POINT' and c[0] in ['VEGETATION','OBJECT']) or
                       (kind=='FACADE' and c[0]=='OBJ') or
-                      (kind=='DECAL' and c[0]=='DECAL_LIB')):
+                      (kind=='DECAL' and c[0]=='DECAL_LIB') or
+                      (kind=='OBJECT_STRING' and c[0]=='OBJECT')):
                     # Sub-object
-                    obj=unicodeify(c[1].replace(':','/'))
+                    obj=unicodeify(c[-1].replace(':','/'))
                     obj2=casepath(folder, join(dirname(f),obj))
                     if exists(join(folder, obj2)):
                         if obj2 not in secondary:
