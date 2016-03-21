@@ -3,11 +3,11 @@ Name: xpublish
 Version: %{version}
 Release: %{release}
 License: GPLv2
-Group: Amusements/Games
+Group: Multimedia/Graphics
 URL: http://marginal.org.uk/x-planescenery
 Vendor: Jonathan Harris <x-plane@marginal.org.uk>
 Prefix: /usr/local
-Requires: bash, python >= 2.4, wxPython >= 2.6
+Requires: bash, python >= 2.7, wxPython >= 2.8
 BuildArch: noarch
 
 %description

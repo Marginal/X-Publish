@@ -1,0 +1,44 @@
+#!/bin/sh
+
+export PYTHONPATH=$PYTHONPATH:..
+VERSION=`python -c "from version import appversion; print '%4.2f' % appversion"`
+VER=`python -c "from version import appversion; print int(round(appversion*100,0))"`
+APPNAME=`python -c "from version import appname; print appname"`
+APPLINUX=`python -c "from version import appname; print appname.lower().replace('-','')"`
+RELEASE=1
+
+rm -f {APPLINUX}-$VERSION-$RELEASE.noarch.rpm
+rm -f {APPLINUX}_$VERSION-$RELEASE_all.deb
+
+EXE=xpublish
+PY='xpublish.py dopublish.py files.py utils.py version.py'
+
+# linux
+umask 022
+RPM=/tmp/${APPLINUX}
+RPMRT=$RPM/root
+rm -rf $RPM
+mkdir -p $RPM/SPECS
+mkdir -p $RPMRT/usr/local/bin
+mkdir -p $RPMRT/usr/local/lib/${APPLINUX}
+mkdir -p $RPMRT/usr/local/share/applications
+mkdir -p $RPMRT/usr/local/share/icons/hicolor/48x48/apps
+mkdir -p $RPMRT/usr/local/share/icons/hicolor/128x128/apps
+cp -p ${APPLINUX}.spec $RPM/SPECS/
+cp -p ${APPLINUX} $RPMRT/usr/local/bin/
+cp -p ${APPLINUX}.desktop $RPMRT/usr/local/share/applications/
+cp -p ${APPNAME}.png $RPMRT/usr/local/share/icons/hicolor/48x48/apps/${APPLINUX}.png
+cp -p ${APPNAME}-128.png $RPMRT/usr/local/share/icons/hicolor/128x128/apps/${APPLINUX}.png
+for i in $PY; do cp -p "../$i" $RPMRT/usr/local/lib/${APPLINUX}/; done
+cp -p ${APPNAME}.png $RPMRT/usr/local/lib/${APPLINUX}/
+rpmbuild -bb --buildroot $RPMRT --noclean --define "_topdir $RPM" --define "_unpackaged_files_terminate_build 0" --define "version $VERSION" --define "release $RELEASE" --quiet $RPM/SPECS/${APPLINUX}.spec
+mv $RPM/RPMS/noarch/${APPLINUX}-$VERSION-$RELEASE.noarch.rpm .
+
+# Debian/Ubuntu
+mkdir -p $RPMRT/DEBIAN
+echo Version: $VERSION-$RELEASE> $RPMRT/DEBIAN/control
+cat   control >> $RPMRT/DEBIAN/control
+cp -p postinst $RPMRT/DEBIAN/
+mkdir -p $RPMRT/usr/local/share/doc/${APPLINUX}/
+cp -p copyright  $RPMRT/usr/local/share/doc/${APPLINUX}/
+fakeroot dpkg-deb -b $RPMRT ..	# requires gnu-tar
