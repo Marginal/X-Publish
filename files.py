@@ -222,7 +222,7 @@ def parselib(folder, secondary, missing, nobackup, names, f, parent):
                 elif cmd=='EXPORT_BACKUP':
                     names[line.split()[0]]=None	# Override exported name
                 line=line[len(line.split()[0]):].strip()
-                obj=casepath(folder, unicodeify(line.replace(':','/')))
+                obj=casepath(folder, unicodeify(line.replace(':','/').replace('\\','/')))
                 if obj not in secondary:
                     if not obj[-4:].lower() in textypes:
                         # eg A0 LHA Scenery System exports textures!
@@ -461,7 +461,7 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
                       (kind=='DECAL' and c[0]=='DECAL_LIB') or
                       (kind=='OBJECT_STRING' and c[0]=='OBJECT')):
                     # Sub-object
-                    obj=unicodeify(c[-1].replace(':','/'))
+                    obj=unicodeify(c[-1].replace(':','/').replace('\\','/'))
                     obj2=casepath(folder, join(dirname(f),obj))
                     if exists(join(folder, obj2)):
                         if obj2 not in secondary:
@@ -577,7 +577,7 @@ def parsedsf(folder, secondary, missing, nobackup, names, f, parent):
             elif c in ['TRET','TJBO','YLOP','WTEN']:
                 objs=h.read(l-9).split('\0')
                 for o in objs:
-                    obj=unicodeify(o.replace(':','/'))
+                    obj=unicodeify(o.replace(':','/').replace('\\','/'))
                     if c=='TJBO':
                         seq=['', 'custom objects']	# v7 style for objs only
                     else:
