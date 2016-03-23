@@ -32,7 +32,7 @@ cp -p ${APPNAME}-128.png $RPMRT/usr/local/share/icons/hicolor/128x128/apps/${APP
 for i in $PY; do cp -p "../$i" $RPMRT/usr/local/lib/${APPLINUX}/; done
 cp -p ${APPNAME}.png $RPMRT/usr/local/lib/${APPLINUX}/
 rpmbuild -bb --buildroot $RPMRT --noclean --define "_topdir $RPM" --define "_unpackaged_files_terminate_build 0" --define "version $VERSION" --define "release $RELEASE" --quiet $RPM/SPECS/${APPLINUX}.spec
-mv $RPM/RPMS/noarch/${APPLINUX}-$VERSION-$RELEASE.noarch.rpm .
+mv $RPM/RPMS/noarch/${APPLINUX}-$VERSION-$RELEASE.noarch.rpm ..
 
 # Debian/Ubuntu
 mkdir -p $RPMRT/DEBIAN
