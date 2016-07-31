@@ -436,7 +436,7 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
                         found=False
                         for ext in textypes:
                             tex2=casepath(folder, join(d, tex+ext))
-                            if exists(join(folder, tex2)):
+                            if not tex2.startswith('..') and exists(join(folder, tex2)):
                                 found=True
                                 if not tex2 in secondary:
                                     secondary[tex2]=[f]
@@ -463,7 +463,7 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
                     # Sub-object
                     obj=unicodeify(c[-1].replace(':','/').replace('\\','/'))
                     obj2=casepath(folder, join(dirname(f),obj))
-                    if exists(join(folder, obj2)):
+                    if not obj2.startswith('..') and exists(join(folder, obj2)):
                         if obj2 not in secondary:
                             parseobj(folder, secondary, missing, nobackup, names, obj2, f)
                         elif f not in secondary[obj2]:
@@ -584,7 +584,7 @@ def parsedsf(folder, secondary, missing, nobackup, names, f, parent):
                         seq=['']
                     for d in seq:
                         obj2=casepath(folder, join(d, obj))
-                        if exists(join(folder, obj2)):
+                        if not obj2.startswith('..') and exists(join(folder, obj2)):
                             if obj2 not in secondary:
                                 parseobj(folder, secondary, missing, nobackup, names, obj2, f)
                             elif f not in secondary[obj2]:
