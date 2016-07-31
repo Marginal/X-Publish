@@ -199,7 +199,7 @@ def publish(folder, app):
     # unused
     for path, dirs, files in walk(folder):
         for thing in files:
-            if not thing.startswith('._') and thing[-4:].lower() in ['.acf', '.afl', '.agp', '.bch', '.bmp', '.dat', '.dcl', '.dds', '.dsf', '.fac', '.for', '.lin', '.lua', '.net', '.obj', '.pol', '.png', '.str', '.ter', '.tga', '.txt', '.wav', '.wpn'] and join(path,thing)[flen:] not in keys:
+            if not thing.startswith('._') and thing[-4:].lower() in ['.acf', '.afl', '.agb', '.agp', '.ags', '.bch', '.bmp', '.dat', '.dcl', '.dds', '.dsf', '.fac', '.for', '.lin', '.lua', '.net', '.obj', '.pol', '.png', '.str', '.ter', '.tga', '.txt', '.wav', '.wpn'] and join(path,thing)[flen:] not in keys:
                 unused[unicodeify(join(path,thing)[flen:])]=['?']
 
     # Do output

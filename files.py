@@ -398,7 +398,7 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
 
         else:
             kind=h.readline().split()[0]
-            if not kind in ['AG_POINT','BEACH','DECAL','FACADE','FOREST','LINE_PAINT','ROADS','OBJ','DRAPED_POLYGON','OBJECT_STRING','TERRAIN']:
+            if not kind in ['AG_BLOCK', 'AG_POINT', 'AG_STRING', 'BEACH','DECAL','FACADE','FOREST','LINE_PAINT','ROADS','OBJ','DRAPED_POLYGON','OBJECT_STRING','TERRAIN']:
                 raise IOError
             for line in h:
                 c=line.split('#')[0].split('//')[0].split()
@@ -411,7 +411,7 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
                     (kind=='BEACH' and c[0] in ['BASE_TEX','LIT_TEX']) or
                     (kind=='TERRAIN' and c[0] in ['BASE_TEX','BASE_TEX_NOWRAP','LIT_TEX','LIT_TEX_NOWRAP','NORMAL_TEX','NORMAL_TEX_NOWRAP','BORDER_TEX','BORDER_TEX_WRAP','BORDER_TEX_NOWRAP','COMPOSITE_TEX','COMPOSITE_TEX_NOWRAP'])):
                     # Texture
-                    if kind=='AG_POINT' and c[0]=='TEXTURE_NORMAL':
+                    if kind != 'OBJ' and c[0]=='TEXTURE_NORMAL':
                         tex = line.strip().split(None,2)[-1]
                     elif c[0] in ['DECAL','DECAL_RGBA']:
                         tex = line.strip().split(None,2)[-1]
@@ -456,7 +456,7 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
                             elif f not in missing[tex2]:
                                 missing[tex2].append(f)
 
-                elif ((kind=='AG_POINT' and c[0] in ['VEGETATION','OBJECT']) or
+                elif ((kind in ['AG_BLOCK', 'AG_POINT', 'AG_STRING'] and c[0] in ['FACADE', 'VEGETATION', 'OBJECT']) or
                       (kind=='FACADE' and c[0]=='OBJ') or
                       (kind=='DECAL' and c[0]=='DECAL_LIB') or
                       (kind=='OBJECT_STRING' and c[0]=='OBJECT')):
