@@ -19,7 +19,7 @@ def parseapt(folder, secondary, missing, nobackup, names, f, parent):
     try:
         if not h.readline().strip(' \t\xef\xbb\xbf')[0] in ['I','A']:	# Also strip UTF-8 BOM
             raise IOError
-        if not h.readline().split()[0] in ['600','703','715','810','850','1000']:
+        if not h.readline().split()[0] in ['600','703','715','810','850','1000','1050']:
             raise IOError
         h.close()
     except:
