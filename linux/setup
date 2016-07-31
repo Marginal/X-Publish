@@ -2,6 +2,7 @@
 
 export PYTHONPATH=$PYTHONPATH:..
 VERSION=`python -c "from version import appversion; print '%4.2f' % appversion"`
+if [ -z "$VERSION" ]; then exit 1; fi	# Expects to be run from top-level dir
 VER=`python -c "from version import appversion; print int(round(appversion*100,0))"`
 APPNAME=`python -c "from version import appname; print appname"`
 APPLINUX=`python -c "from version import appname; print appname.lower().replace('-','')"`
@@ -24,21 +25,21 @@ mkdir -p $RPMRT/usr/local/lib/${APPLINUX}
 mkdir -p $RPMRT/usr/local/share/applications
 mkdir -p $RPMRT/usr/local/share/icons/hicolor/48x48/apps
 mkdir -p $RPMRT/usr/local/share/icons/hicolor/128x128/apps
-cp -p ${APPLINUX}.spec $RPM/SPECS/
-cp -p ${APPLINUX} $RPMRT/usr/local/bin/
-cp -p ${APPLINUX}.desktop $RPMRT/usr/local/share/applications/
-cp -p ${APPNAME}.png $RPMRT/usr/local/share/icons/hicolor/48x48/apps/${APPLINUX}.png
-cp -p ${APPNAME}-128.png $RPMRT/usr/local/share/icons/hicolor/128x128/apps/${APPLINUX}.png
-for i in $PY; do cp -p "../$i" $RPMRT/usr/local/lib/${APPLINUX}/; done
-cp -p ${APPNAME}.png $RPMRT/usr/local/lib/${APPLINUX}/
+cp -p linux/${APPLINUX}.spec $RPM/SPECS/
+cp -p linux/${APPLINUX} $RPMRT/usr/local/bin/
+cp -p linux/${APPLINUX}.desktop $RPMRT/usr/local/share/applications/
+cp -p linux/${APPNAME}.png $RPMRT/usr/local/share/icons/hicolor/48x48/apps/${APPLINUX}.png
+cp -p linux/${APPNAME}-128.png $RPMRT/usr/local/share/icons/hicolor/128x128/apps/${APPLINUX}.png
+for i in $PY; do cp -p "$i" $RPMRT/usr/local/lib/${APPLINUX}/; done
+cp -p linux/${APPNAME}.png $RPMRT/usr/local/lib/${APPLINUX}/
 rpmbuild -bb --buildroot $RPMRT --noclean --define "_topdir $RPM" --define "_unpackaged_files_terminate_build 0" --define "version $VERSION" --define "release $RELEASE" --quiet $RPM/SPECS/${APPLINUX}.spec
-mv $RPM/RPMS/noarch/${APPLINUX}-$VERSION-$RELEASE.noarch.rpm ..
+mv $RPM/RPMS/noarch/${APPLINUX}-$VERSION-$RELEASE.noarch.rpm .
 
 # Debian/Ubuntu
 mkdir -p $RPMRT/DEBIAN
 echo Version: $VERSION-$RELEASE> $RPMRT/DEBIAN/control
-cat   control >> $RPMRT/DEBIAN/control
-cp -p postinst $RPMRT/DEBIAN/
+cat   linux/control >> $RPMRT/DEBIAN/control
+cp -p linux/postinst $RPMRT/DEBIAN/
 mkdir -p $RPMRT/usr/local/share/doc/${APPLINUX}/
-cp -p copyright  $RPMRT/usr/local/share/doc/${APPLINUX}/
-fakeroot dpkg-deb -b $RPMRT ..	# requires gnu-tar
+cp -p linux/copyright  $RPMRT/usr/local/share/doc/${APPLINUX}/
+fakeroot dpkg-deb -b $RPMRT .	# requires gnu-tar
