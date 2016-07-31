@@ -403,10 +403,13 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
             for line in h:
                 c=line.split('#')[0].split('//')[0].split()
                 if not c: continue
-                if kind=='OBJ' and c[0]=='VT': break	# early exit
-                if (c[0] in ['TEXTURE','TEXTURE_LIT','TEXTURE_NORMAL','TEXTURE_DRAPED','TEXTURE_DRAPED_NORMAL',
-                             'TEXTURE_CONTROL','TEXTURE_CONTROL_NOWRAP','TEXTURE_DETAIL','TEXTURE_TERRAIN','TEXTURE_TILE',
-                             'DECAL','DECAL_RGBA','DECAL_PARAMS','DECAL_PARAMS_PROJ'] or
+                if kind=='OBJ' and c[0]=='VT':
+                    break	# early exit
+                elif c[0] == 'TEXTURE' and len(c) == 1:
+                    pass	# empty TEXTURE statement
+                elif (c[0] in ['TEXTURE','TEXTURE_LIT','TEXTURE_NORMAL','TEXTURE_DRAPED','TEXTURE_DRAPED_NORMAL',
+                               'TEXTURE_CONTROL','TEXTURE_CONTROL_NOWRAP','TEXTURE_DETAIL','TEXTURE_TERRAIN','TEXTURE_TILE',
+                               'DECAL','DECAL_RGBA','DECAL_PARAMS','DECAL_PARAMS_PROJ'] or
                     (kind=='DRAPED_POLYGON' and c[0] in ['TEXTURE_NOWRAP','TEXTURE_LIT_NOWRAP']) or
                     (kind=='BEACH' and c[0] in ['BASE_TEX','LIT_TEX']) or
                     (kind=='TERRAIN' and c[0] in ['BASE_TEX','BASE_TEX_NOWRAP','LIT_TEX','LIT_TEX_NOWRAP','NORMAL_TEX','NORMAL_TEX_NOWRAP','BORDER_TEX','BORDER_TEX_WRAP','BORDER_TEX_NOWRAP','COMPOSITE_TEX','COMPOSITE_TEX_NOWRAP'])):
