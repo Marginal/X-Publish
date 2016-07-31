@@ -328,6 +328,7 @@ def parsegtc(folder, secondary, missing, nobackup, names, f, parent):
 # if not names, this is an aircraft misc object, so also look in liveries
 def parseobj(folder, secondary, missing, nobackup, names, f, parent):
     try:
+        objs = []	# Sub-objects
         h=file(join(folder,f), 'rU')
         secondary[f]=[parent]	# file at least is readable - ship it
         if not h.readline().strip(' \t\xef\xbb\xbf')[0] in ['I','A']:	# Also strip UTF-8 BOM
@@ -413,7 +414,7 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
                     (kind=='DRAPED_POLYGON' and c[0] in ['TEXTURE_NOWRAP','TEXTURE_LIT_NOWRAP']) or
                     (kind=='BEACH' and c[0] in ['BASE_TEX','LIT_TEX']) or
                     (kind=='TERRAIN' and c[0] in ['BASE_TEX','BASE_TEX_NOWRAP','LIT_TEX','LIT_TEX_NOWRAP','NORMAL_TEX','NORMAL_TEX_NOWRAP','BORDER_TEX','BORDER_TEX_WRAP','BORDER_TEX_NOWRAP','COMPOSITE_TEX','COMPOSITE_TEX_NOWRAP'])):
-                    # Texture
+                    # Texture - allow spaces in filenames
                     if kind != 'OBJ' and c[0]=='TEXTURE_NORMAL':
                         tex = line.strip().split(None,2)[-1]
                     elif c[0] in ['DECAL','DECAL_RGBA']:
@@ -459,31 +460,45 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
                             elif f not in missing[tex2]:
                                 missing[tex2].append(f)
 
+                # Sub-objects
                 elif ((kind in ['AG_BLOCK', 'AG_POINT', 'AG_STRING'] and c[0] in ['FACADE', 'VEGETATION', 'OBJECT']) or
                       (kind=='FACADE' and c[0]=='OBJ') or
-                      (kind=='DECAL' and c[0]=='DECAL_LIB') or
-                      (kind=='OBJECT_STRING' and c[0]=='OBJECT')):
-                    # Sub-object
-                    obj=unicodeify(c[-1].replace(':','/').replace('\\','/'))
-                    obj2=casepath(folder, join(dirname(f),obj))
-                    if not obj2.startswith('..') and exists(join(folder, obj2)):
-                        if obj2 not in secondary:
-                            parseobj(folder, secondary, missing, nobackup, names, obj2, f)
-                        elif f not in secondary[obj2]:
-                            secondary[obj2].append(f)
-                    else:
-                        if obj in names:	# terrain_Water or library obj
-                            if names[obj]:
-                                if obj not in nobackup:
-                                    nobackup[obj]=[f]
-                                elif f not in nobackup[obj]:
-                                    nobackup[obj].append(f)
-                        elif obj not in missing:
-                            missing[obj]=[f]
-                        elif f not in missing[obj]:
-                            missing[obj].append(f)
+                      (kind=='DECAL' and c[0]=='DECAL_LIB')):
+                      objs.append(line.strip().split(None,1)[-1])
+                elif kind=='OBJECT_STRING' and c[0]=='OBJECT':
+                      objs.append(line.strip().split(None,3)[-1])
+                elif kind=='FACADE' and c[0] == 'FACADE_SCRAPER_MODEL':
+                      objs.append(c[1])
+                      if c[2] != '-': objs.append(c[2])
+                elif kind=='FACADE' and c[0] == 'FACADE_SCRAPER_MODEL_OFFSET':
+                      objs.append(c[4])
+                      if c[10] != '-': objs.append(c[10])
+                elif kind=='FACADE' and c[0] == 'FACADE_SCRAPER_PAD':
+                      objs.append(c[5])
 
         h.close()
+
+        # Add sub-objects
+        for obj in objs:
+            obj = unicodeify(obj.replace(':','/').replace('\\','/'))
+            obj2 = casepath(folder, join(dirname(f),obj))
+            if not obj2.startswith('..') and exists(join(folder, obj2)):
+                if obj2 not in secondary:
+                    parseobj(folder, secondary, missing, nobackup, names, obj2, f)
+                elif f not in secondary[obj2]:
+                    secondary[obj2].append(f)
+            else:
+                if obj in names:	# terrain_Water or library obj
+                    if names[obj]:
+                        if obj not in nobackup:
+                            nobackup[obj]=[f]
+                        elif f not in nobackup[obj]:
+                            nobackup[obj].append(f)
+                elif obj not in missing:
+                    missing[obj]=[f]
+                elif f not in missing[obj]:
+                    missing[obj].append(f)
+
     except:
         if __debug__:
             print f
