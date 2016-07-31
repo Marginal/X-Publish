@@ -423,8 +423,10 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
                         tex = line.strip().split(None,3)[-1]
                     elif c[0]=='TEXTURE_TILE':
                         tex = line.strip().split(None,5)[-1]
-                    elif c[0] in ['DECAL_PARAMS','DECAL_PARAMS_PROJ']:
-                        tex = line.strip().split(None,15)[-1]
+                    elif c[0] == 'DECAL_PARAMS':
+                        tex = line.strip().split(None,11)[-1]
+                    elif c[0] == 'DECAL_PARAMS_PROJ':
+                        tex = line.strip().split(None,16)[-1]
                     else:
                         tex = line.strip().split(None,1)[-1]
                     if not tex: continue
@@ -463,7 +465,7 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
                 # Sub-objects
                 elif ((kind in ['AG_BLOCK', 'AG_POINT', 'AG_STRING'] and c[0] in ['FACADE', 'VEGETATION', 'OBJECT']) or
                       (kind=='FACADE' and c[0]=='OBJ') or
-                      (kind=='DECAL' and c[0]=='DECAL_LIB')):
+                      (c[0] == 'DECAL_LIB')):
                       objs.append(line.strip().split(None,1)[-1])
                 elif kind=='OBJECT_STRING' and c[0]=='OBJECT':
                       objs.append(line.strip().split(None,3)[-1])
