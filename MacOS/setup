@@ -22,5 +22,5 @@ cp -p MacOS/*.icns ${APP}/Contents/Resources/
 # no external libs required for python2.5
 python2.7 -OO MacOS/bundledeps.py -x setuptools -x pkg_resources -x PIL.ImageQt -o ${APP} ${EXE}.py
 xattr -r ${APP}	# warn about superfluous resource forks / metadata
-codesign --deep -s "Developer ID Application: Jonathan Harris" ${APP}
+codesign --deep -s "Developer ID Application: Jonathan Harris (R8954VZGV2)" ${APP}
 ditto -ck --keepParent --sequesterRsrc ${APP} ${APPNAME}_${VER}_mac.zip
