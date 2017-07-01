@@ -3,7 +3,7 @@ Section: graphics
 Priority: extra
 Architecture: all
 Installed-Size: 60
-Depends: bash, desktop-file-utils, python (>=2.7), python-wxgtk2.8
+Depends: bash, desktop-file-utils, python (>=2.7), python-wxtools
 Provides: xpublish
 Maintainer: Jonathan Harris <x-plane@marginal.org.uk>
 Description: X-Plane package publisher
