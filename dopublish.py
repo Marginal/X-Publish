@@ -2,7 +2,7 @@ from glob import glob
 from os import listdir, unlink, walk
 from os.path import basename, dirname, exists, isdir, join, normpath, pardir, sep
 from sys import exit
-from urllib import quote
+from urllib.parse import quote
 from zipfile import ZipFile, ZIP_DEFLATED
 
 from files import *
@@ -29,16 +29,16 @@ def publish(folder, app):
 
     flen=len(folder)+1
 
-    acf=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '*.[aA][cC][fF]'))])
+    acf=dict([(f[flen:],[None]) for f in glob(join(folder, '*.[aA][cC][fF]'))])
 
-    lib=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]'))])
-    gtc=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[gG][rR][oO][uU][nN][dD][tT][rR][aA][fF][fF][iI][cC].[tT][xX][tT]'))])
-    apt=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[eE][aA][rR][tT][hH] [nN][aA][vV] [dD][aA][tT][aA]', '[aA][pPtT][tTcC].[dD][aA][tT]'))])
-    dsf=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[eE][aA][rR][tT][hH] [nN][aA][vV] [dD][aA][tT][aA]', '[+-][0-9]0[+-][01][0-9]0', '[+-][0-9][0-9][+-][01][0-9][0-9].[dD][sS][fF]'))])
+    lib=dict([(f[flen:],[None]) for f in glob(join(folder, '[lL][iI][bB][rR][aA][rR][yY].[tT][xX][tT]'))])
+    gtc=dict([(f[flen:],[None]) for f in glob(join(folder, '[gG][rR][oO][uU][nN][dD][tT][rR][aA][fF][fF][iI][cC].[tT][xX][tT]'))])
+    apt=dict([(f[flen:],[None]) for f in glob(join(folder, '[eE][aA][rR][tT][hH] [nN][aA][vV] [dD][aA][tT][aA]', '[aA][pPtT][tTcC].[dD][aA][tT]'))])
+    dsf=dict([(f[flen:],[None]) for f in glob(join(folder, '[eE][aA][rR][tT][hH] [nN][aA][vV] [dD][aA][tT][aA]', '[+-][0-9]0[+-][01][0-9]0', '[+-][0-9][0-9][+-][01][0-9][0-9].[dD][sS][fF]'))])
 
-    htm=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '*.[hH][tT][mM][lL]'))+glob(join(folder, '*.[hH][tT][mM]'))])
-    txt=dict([(unicodeify(f[flen:]),[None]) for f in glob(join(folder, '[rR][eE][aA][dD][mM][eE]'))+glob(join(folder, '*.[tT][xX][tT]'))+glob(join(folder, '*.[pP][dD][fF]'))+glob(join(folder, '*.[jJ][pP][gG]'))+glob(join(folder, '*.[jJ][pP][eE][gG]'))+glob(join(folder, '*.[dD][oO][cC]'))+glob(join(folder, '*.[rR][tT][fF]'))+glob(join(folder, '*.[dD][aA][tT]'))+glob(join(folder, '*.[iI][nN][iI]'))])
-    for f in lib.keys() + gtc.keys():
+    htm=dict([(f[flen:],[None]) for f in glob(join(folder, '*.[hH][tT][mM][lL]'))+glob(join(folder, '*.[hH][tT][mM]'))])
+    txt=dict([(f[flen:],[None]) for f in glob(join(folder, '[rR][eE][aA][dD][mM][eE]'))+glob(join(folder, '*.[tT][xX][tT]'))+glob(join(folder, '*.[pP][dD][fF]'))+glob(join(folder, '*.[jJ][pP][gG]'))+glob(join(folder, '*.[jJ][pP][eE][gG]'))+glob(join(folder, '*.[dD][oO][cC]'))+glob(join(folder, '*.[rR][tT][fF]'))+glob(join(folder, '*.[dD][aA][tT]'))+glob(join(folder, '*.[iI][nN][iI]'))])
+    for f in list(lib.keys()) + list(gtc.keys()):
         if f in txt: txt.pop(f)	# don't list library.txt or groundtraffic.txt twice
     txt.pop('summary.txt',None)	# skip FS2XPlane summary
 
@@ -73,7 +73,7 @@ def publish(folder, app):
         for top in [join(pardir,pardir),join(pardir,pardir,pardir),join(pardir,pardir,pardir,pardir),join(pardir,pardir,pardir,pardir,pardir)]:
             names.update(dict([(unicodeify(basename(f).lower()),[None]) for f in glob(join(folder, top, '[aA][iI][rR][fF][oO][iI][lL][sA]','*.[aA][fF][lL]'))+glob(join(folder, top, '[wW][eE][aA][pP][oO][nN][sS]','*.[wW][pP][nN]'))]))
 
-        for f in acf.keys():
+        for f in list(acf.keys()):
             base=f[:-4]
             for thing in ['_paint', '_paint_lit', '_paint2', '_paint2_lit',
                           '_panel', '_panel_lit', '_panel-1','_panel-1_lit',
@@ -165,13 +165,13 @@ def publish(folder, app):
             if basename(dirname(f))!=basename(folder):
                 scanlib(names, normpath(f), normpath(f))
 
-        for f in apt.keys():
-            parseapt(folder, secondary, missing, nobackup, names, f, None)
-        for f in lib.keys():
+        # for f in list(apt.keys()):
+        #     parseapt(folder, secondary, missing, nobackup, names, f, None)
+        for f in list(lib.keys()):
             parselib(folder, secondary, missing, nobackup, names, f, None)
-        for f in gtc.keys():
+        for f in list(gtc.keys()):
             parsegtc(folder, secondary, missing, nobackup, names, f, None)
-        for f in dsf.keys():
+        for f in list(dsf.keys()):
             parsedsf(folder, secondary, missing, nobackup, names, f, None)
 
     for plugin in glob(join(folder,'[pP][lL][uU][gG][iI][nN][sS]','*')):
@@ -182,15 +182,16 @@ def publish(folder, app):
                         secondary[unicodeify(join(path,thing)[flen:])]=[plugin[flen:]]
 
     # last so don't double-count stuff already in misc
-    for f in htm.keys():
+    for f in list(htm.keys()):
         parsehtm(folder, secondary, misc, missing, nobackup, f, None)
 
     # Check file name sanity
-    keys=primary.keys()+misc.keys()+secondary.keys()
+    keys=list(primary.keys())+list(misc.keys())+list(secondary.keys())
     for key in keys:
         try:
             key.encode('ascii')
         except:
+            print_exc()
             die('The file name %s \ncan\'t reliably be stored in a .zip file. \n\nRename the file avoiding accented characters \nand the characters  \\ / : * ? " < > |' % key)
         for c in '\\/:*?"<>|':
             if c in key.replace(sep,''):
@@ -208,12 +209,13 @@ def publish(folder, app):
     for c in '\\/:*?"<>|':
         safefolder.replace(c,'_')
     zipname=join(dirname(folder),safefolder+'.zip')
-
+    print(zipname)
     try:
         if exists(join(dirname(folder),safefolder+'.html')):
             unlink(join(dirname(folder),safefolder+'.html'))
         h=ZipFile(zipname, 'w', ZIP_DEFLATED)
     except:
+        print_exc()
         die("Can't write %s\n" % zipname)
     else:
         try:
@@ -230,6 +232,7 @@ def publish(folder, app):
             exit(0)
         except:
             h.close()
+            print_exc()
             if exists(zipname): unlink(zipname)
             die("Can't write %s\n" % zipname)
 

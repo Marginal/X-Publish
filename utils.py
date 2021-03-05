@@ -4,7 +4,7 @@ from os.path import abspath, basename, dirname, join, normpath, sep
 from sys import exit
 import types
 import unicodedata
-from urllib import quote
+from urllib.parse import quote
 import wx
 
 from version import appname, appversion
@@ -48,9 +48,9 @@ def sortfolded(seq):
 # Turn 8-bit string into unicode
 def unicodeify(s):
     if type(s)==str:
-        return s.decode('latin_1')
+        return s
     else:
-        return unicodedata.normalize('NFC',s)
+        return s.decode()
 
 
 # View contents of file
@@ -60,7 +60,7 @@ def viewer(filename):
             os.startfile(filename)
         else:
             filename=abspath(filename)
-            if type(filename)==types.UnicodeType:
+            if type(filename)==str:
                 filename=filename.encode('utf-8')
             webbrowser.open("file:"+quote(filename))
     except:
@@ -75,7 +75,7 @@ def dosection(h, folder, files, dolink, doref, dolib, col, heading):
         h.write('      <th style="background-color: %s;"></th>\n' % col)
     h.write('    </tr>\n')
     
-    keys=files.keys()
+    keys=list(files.keys())
     sortfolded(keys)
     for key in keys:
         refs=files[key]
