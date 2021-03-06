@@ -42,7 +42,7 @@ def casepath(root, path):
 # 2.3 version of case-insensitive sort
 # 2.4-only version is faster: sort(cmp=lambda x,y: cmp(x.lower(), y.lower()))
 def sortfolded(seq):
-    seq.sort(lambda x,y: cmp(x.lower(), y.lower()))
+    seq.sort(key = lambda x: x.lower()) 
 
 
 # Turn 8-bit string into unicode
@@ -87,13 +87,13 @@ def dosection(h, folder, files, dolink, doref, dolib, col, heading):
             refstring=''
         else:
             sortfolded(refs)
-            refstring=(', '.join(['<a href="file:///%s">%s</a>' % (quote(join(folder,ref).encode('utf-8').replace('\\','/')), ref.encode('utf-8').replace('&','&amp;')) for ref in refs if ref!='?']))
+            refstring=(', '.join(['<a href="file:///%s">%s</a>' % (quote(join(folder,ref).replace('\\','/')), ref.replace('&','&amp;')) for ref in refs if ref!='?']))
         if dolib:
-            linkstring = '<a href="%s">%s</a>' % ('file:///'+quote(dolib[key].encode('utf-8').replace('\\','/')), basename(dirname(dolib[key])).encode('utf-8').replace('&','&amp;')) + ' : ' + key.encode('utf-8').replace('&','&amp;')
+            linkstring = '<a href="%s">%s</a>' % ('file:///'+quote(dolib[key].replace('\\','/')), basename(dirname(dolib[key])).replace('&','&amp;')) + ' : ' + key.replace('&','&amp;')
         elif dolink:
-            linkstring = '<a href="%s">%s</a>' % ('file:///'+quote(join(folder,key).encode('utf-8').replace('\\','/')), key.encode('utf-8').replace('&','&amp;'))
+            linkstring = '<a href="%s">%s</a>' % ('file:///'+quote(join(folder,key).replace('\\','/')), key.replace('&','&amp;'))
         else:
-            linkstring=key.encode('utf-8').replace('&','&amp;')
+            linkstring=key.replace('&','&amp;')
         h.write('    <tr>\n'
                 '      <td>%s</td>\n'
                 '      <td>%s</td>\n'

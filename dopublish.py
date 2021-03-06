@@ -219,12 +219,12 @@ def publish(folder, app):
         die("Can't write %s\n" % zipname)
     else:
         try:
-            sortfolded(keys)
+            # sortfolded(keys)
             l=len(keys)
             for i in range(l):
                 if not app.progress.Update(50+(50.0*i)/l, 'Writing %s.zip' % safefolder): exit(1)
                 key=keys[i]
-                h.write(join(folder,key), join(safefolder,key).encode('cp850'))
+                h.write(join(folder,key), join(safefolder,key))
             h.close()
         except KeyboardInterrupt:
             h.close()
@@ -237,25 +237,30 @@ def publish(folder, app):
             die("Can't write %s\n" % zipname)
 
 
-    h=file(join(dirname(folder),safefolder+'.html'),'wt')
-    title=safefolder.encode('utf-8').replace('&','&amp;')+'.zip'
-    h.write('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n'
-            '<html>\n'
-            '\n'
-            '<head>\n'
-            '  <meta http-equiv="content-type" content="text/html; charset=utf-8">\n'
-            '  <title>%s</title>\n'
-            '  <style type="text/css">\n'
-            '    h1 { font-family: Arial,Helvetica,sans-serif; }\n'
-            '    th { width: 50%%; font-family: Arial,Helvetica,sans-serif; font-weight: bold; text-align: left; vertical-align: top; }\n'
-            '    td { text-align: left; vertical-align: top; }\n'
-            '    abbr { cursor: help; }\n'
-            '  </style>\n'
-            '</head>\n'
-            '\n'
-            '<body>\n'
-            '  <h1><a href="file:///%s"><abbr title="This is the location of the created .zip archive for publication">%s</abbr></a></h1>\n'
-            '  <table width="100%%" border="0" cellpadding="2">\n' % (title, quote(zipname.encode('utf-8').replace('\\','/')), zipname.encode('utf-8').replace(' ','&nbsp;')))
+    h=open(join(dirname(folder),safefolder+'.html'),'wt')
+    title=safefolder.replace('&','&amp;')+'.zip'
+    out="""
+    <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n
+    <html>\n
+    <head>\n
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">\n
+        <title>{}</title>
+        <style type="text/css">
+            h1 {{ font-family: Arial,Helvetica,sans-serif; }}
+            th {{ width: 50%; font-family: Arial,Helvetica,sans-serif; font-weight: bold; text-align: left; vertical-align: top; }}\n
+            td {{ text-align: left; vertical-align: top; }}\n
+            abbr {{ cursor: help; }}\n
+        </style>\n
+    </head>\n
+    \n
+    <body>\n
+        <h1><a href="file:///{}"><abbr title="This is the location of the created .zip archive for publication">{}</abbr></a></h1>\n
+        <table width="100%" border="0" cellpadding="2">\n
+    """.format(title, quote(zipname.replace('\\','/')), zipname.replace(' ','&nbsp;'))
+    
+    #.format(title, quote(zipname.replace('\\','/')), zipname.replace(' ','&nbsp;') ).encode()
+
+    h.write(out)
     if acf:
         dosection(h, folder, primary, True, False, False, 'lightgreen', '<abbr title="These files have been included in the .zip archive">Aircraft</abbr>')
     else:
