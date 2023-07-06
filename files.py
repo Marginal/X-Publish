@@ -12,7 +12,7 @@ textypes=['.dds','.png','.bmp']
 def parseapt(folder, secondary, missing, nobackup, names, f, parent):
 
     try:
-        h=file(join(folder, f), 'rU')
+        h=file(join(folder, f), 'r')
     except:
         die("Can't read %s" % f)
         if __debug__: print_exc()
@@ -204,7 +204,7 @@ def parseacf(folder, secondary, missing, nobackup, names, f, parent):
 
 def parselib(folder, secondary, missing, nobackup, names, f, parent):
     try:
-        h=open(join(folder, f), 'rU')
+        h=open(join(folder, f), 'r')
         if not h.readline().strip(' \t\xef\xbb\xbf')[0] in ['I','A']:	# Also strip UTF-8 BOM
             raise IOError
         if not h.readline().split()[0]=='800':
@@ -241,7 +241,7 @@ def parselib(folder, secondary, missing, nobackup, names, f, parent):
 
 def scanlib(names, f, lib):
     try:
-        h=open(f, 'rU')
+        h=open(f, 'r')
         if not h.readline().strip(' \t\xef\xbb\xbf')[0] in ['I','A']:	# Also strip UTF-8 BOM
             raise IOError
         if not h.readline().split()[0]=='800':
@@ -263,13 +263,13 @@ def scanlib(names, f, lib):
         if __debug__:
             print(f)
             print_exc()
-        die("Can't read %s" % f)
+        # die("Can't read %s" % f)
 
 
 def parsegtc(folder, secondary, missing, nobackup, names, f, parent):
     try:
         doingtrain = doinghighway = False
-        h=open(join(folder, f), 'rU')
+        h=open(join(folder, f), 'r')
         for passtype in ['route', 'train']:	# have to do two passes since train may be defined after route
             h.seek(0)
             for line in h:
@@ -329,7 +329,7 @@ def parsegtc(folder, secondary, missing, nobackup, names, f, parent):
 def parseobj(folder, secondary, missing, nobackup, names, f, parent):
     try:
         objs = []	# Sub-objects
-        h=open(join(folder,f), 'rU')
+        h=open(join(folder,f), 'r')
         secondary[f]=[parent]	# file at least is readable - ship it
         if not h.readline().strip(' \t\xef\xbb\xbf')[0] in ['I','A']:	# Also strip UTF-8 BOM
             raise IOError
@@ -683,7 +683,7 @@ def parsehtm(folder, secondary, misc, missing, nobackup, f, parent):
             pass	# just ignore and hope it can recover
 
     try:
-        h=open(join(folder,f), 'rU')
+        h=open(join(folder,f), 'r')
         parser=MyHTMLParser()
         parser.feed(h.read())
         parser.close()

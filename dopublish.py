@@ -222,7 +222,7 @@ def publish(folder, app):
             # sortfolded(keys)
             l=len(keys)
             for i in range(l):
-                if not app.progress.Update(50+(50.0*i)/l, 'Writing %s.zip' % safefolder): exit(1)
+                if not app.progress.Update(10, 'Writing %s.zip' % safefolder): exit(1)
                 key=keys[i]
                 h.write(join(folder,key), join(safefolder,key))
             h.close()
