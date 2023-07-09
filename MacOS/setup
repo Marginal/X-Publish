@@ -2,8 +2,8 @@
 
 VERSION=`python -c "from version import appversion; print '%4.2f' % appversion"`
 if [ -z "$VERSION" ]; then exit 1; fi	# Expects to be run from top-level dir
-VER=`python -c "from version import appversion; print int(round(appversion*100,0))"`
-APPNAME=`python -c "from version import appname; print appname"`
+VER=`python3 -c "from version import appversion; print int(round(appversion*100,0))"`
+APPNAME=`python3 -c "from version import appname; print appname"`
 
 APP=${APPNAME}.app
 EXE=xpublish
@@ -20,7 +20,7 @@ for i in $PY; do cp -p "$i" ${APP}/Contents/MacOS/; done
 mkdir -p ${APP}/Contents/Resources
 cp -p MacOS/*.icns ${APP}/Contents/Resources/
 # no external libs required for python2.5
-python2.7 -OO MacOS/bundledeps.py -x setuptools -x pkg_resources -x PIL.ImageQt -o ${APP} ${EXE}.py
+python3 -OO MacOS/bundledeps.py -x setuptools -x pkg_resources -x PIL.ImageQt -o ${APP} ${EXE}.py
 xattr -r ${APP}	# warn about superfluous resource forks / metadata
 codesign --deep -s "Developer ID Application: Jonathan Harris (R8954VZGV2)" ${APP}
 ditto -ck --keepParent --sequesterRsrc ${APP} ${APPNAME}_${VER}_mac.zip

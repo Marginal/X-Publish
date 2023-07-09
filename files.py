@@ -1,8 +1,8 @@
-from HTMLParser import HTMLParser
+from html.parser import HTMLParser
 from os import listdir
 from os.path import basename, dirname, exists, isdir, join, normpath, pardir, splitext
 from struct import unpack
-from urllib import unquote
+from urllib.parse import unquote
 if __debug__: from traceback import print_exc
 
 from utils import casepath, die, unicodeify
@@ -12,7 +12,7 @@ textypes=['.dds','.png','.bmp']
 def parseapt(folder, secondary, missing, nobackup, names, f, parent):
 
     try:
-        h=file(join(folder, f), 'rU')
+        h=file(join(folder, f), 'r')
     except:
         die("Can't read %s" % f)
         if __debug__: print_exc()
@@ -197,14 +197,14 @@ def parseacf(folder, secondary, missing, nobackup, names, f, parent):
         
     except:
         if __debug__:
-            print f
+            print(f)
             print_exc()
         die("Can't read %s" % f)
         
 
 def parselib(folder, secondary, missing, nobackup, names, f, parent):
     try:
-        h=file(join(folder, f), 'rU')
+        h=open(join(folder, f), 'r')
         if not h.readline().strip(' \t\xef\xbb\xbf')[0] in ['I','A']:	# Also strip UTF-8 BOM
             raise IOError
         if not h.readline().split()[0]=='800':
@@ -234,14 +234,14 @@ def parselib(folder, secondary, missing, nobackup, names, f, parent):
         h.close()
     except:
         if __debug__:
-            print f
+            print(f)
             print_exc()
         die("Can't read %s" % f)
 
 
 def scanlib(names, f, lib):
     try:
-        h=file(f, 'rU')
+        h=open(f, 'r')
         if not h.readline().strip(' \t\xef\xbb\xbf')[0] in ['I','A']:	# Also strip UTF-8 BOM
             raise IOError
         if not h.readline().split()[0]=='800':
@@ -261,15 +261,15 @@ def scanlib(names, f, lib):
         h.close()
     except:
         if __debug__:
-            print f
+            print(f)
             print_exc()
-        die("Can't read %s" % f)
+        # die("Can't read %s" % f)
 
 
 def parsegtc(folder, secondary, missing, nobackup, names, f, parent):
     try:
         doingtrain = doinghighway = False
-        h=file(join(folder, f), 'rU')
+        h=open(join(folder, f), 'r')
         for passtype in ['route', 'train']:	# have to do two passes since train may be defined after route
             h.seek(0)
             for line in h:
@@ -318,7 +318,7 @@ def parsegtc(folder, secondary, missing, nobackup, names, f, parent):
         h.close()
     except:
         if __debug__:
-            print f
+            print(f)
             print_exc()
         die("Can't read %s" % f)
 
@@ -329,7 +329,7 @@ def parsegtc(folder, secondary, missing, nobackup, names, f, parent):
 def parseobj(folder, secondary, missing, nobackup, names, f, parent):
     try:
         objs = []	# Sub-objects
-        h=file(join(folder,f), 'rU')
+        h=open(join(folder,f), 'r')
         secondary[f]=[parent]	# file at least is readable - ship it
         if not h.readline().strip(' \t\xef\xbb\xbf')[0] in ['I','A']:	# Also strip UTF-8 BOM
             raise IOError
@@ -503,7 +503,7 @@ def parseobj(folder, secondary, missing, nobackup, names, f, parent):
 
     except:
         if __debug__:
-            print f
+            print(f)
             print_exc()
         if f not in missing:
             missing[f]=[parent]
@@ -575,18 +575,31 @@ def liverytex(folder, secondary, missing, nobackup, tex, parent, dolit=False):
 
 def parsedsf(folder, secondary, missing, nobackup, names, f, parent):
     try:
-        h=file(join(folder,f), 'rb')
-        if h.read(8)!='XPLNEDSF' or unpack('<I',h.read(4))!=(1,) or h.read(4)!='DAEH':
+        h=open(join(folder,f), 'rb')
+        # print(h.read(8))
+        # print(b'XPLNEDSF')
+        # print(compare(h.read(8), b'XPLNEDSF'))
+        # print(h.read(8) == b'XPLNEDSF')
+        # print(h.read(8).decode())
+        _a = h.read(8)
+        _b = h.read(4)
+        _c = h.read(4)
+        print(_a)
+        print(_a, _b, _c)
+        print(_a == b'XPLNEDSF')
+        
+        if _a != b'XPLNEDSF' or unpack('<I',_b) != (1,) or _c != b'DAEH':
             raise IOError
         (l,)=unpack('<I', h.read(4))
         headend=h.tell()+l-8
-        if h.read(4)!='PORP':
+        if h.read(4)!=b'PORP':
             raise IOError
         h.seek(headend)
 
         # Definitions Atom
-        if h.read(4)!='NFED':
+        if h.read(4)!=b'NFED':
             raise IOError
+        print("after atom")
         (l,)=unpack('<I', h.read(4))
         defnend=h.tell()+l-8
         while h.tell()<defnend:
@@ -594,11 +607,11 @@ def parsedsf(folder, secondary, missing, nobackup, names, f, parent):
             (l,)=unpack('<I', h.read(4))
             if l==8:
                 pass	# empty
-            elif c in ['TRET','TJBO','YLOP','WTEN']:
-                objs=h.read(l-9).split('\0')
+            elif c in [b'TRET',b'TJBO',b'YLOP',b'WTEN']:
+                objs=h.read(l-9).split(b'\0')
                 for o in objs:
-                    obj=unicodeify(o.replace(':','/').replace('\\','/'))
-                    if c=='TJBO':
+                    obj=o.replace(b':',b'/').replace(b'\\',b'/').decode()
+                    if c==b'TJBO':
                         seq=['', 'custom objects']	# v7 style for objs only
                     else:
                         seq=['']
@@ -628,11 +641,17 @@ def parsedsf(folder, secondary, missing, nobackup, names, f, parent):
 
         h.close()
     except:
-        if __debug__:
-            print f
+        if True:
+            print(f)
             print_exc()
         die("Can't read %s" % f)
 
+def compare(a, b, encoding="utf8"):
+    if isinstance(a, bytes):
+        a = a.decode(encoding)
+    if isinstance(b, bytes):
+        b = b.decode(encoding)
+    return a == b
 
 def parsehtm(folder, secondary, misc, missing, nobackup, f, parent):
 
@@ -664,7 +683,7 @@ def parsehtm(folder, secondary, misc, missing, nobackup, f, parent):
             pass	# just ignore and hope it can recover
 
     try:
-        h=file(join(folder,f), 'rU')
+        h=open(join(folder,f), 'r')
         parser=MyHTMLParser()
         parser.feed(h.read())
         parser.close()

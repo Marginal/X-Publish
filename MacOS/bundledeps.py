@@ -22,7 +22,7 @@ dylpath = None	# app MacOS folder - equivalent of /usr/local/lib
 
 
 def printhelp():
-    print """usage:\t%s [-d] [-n] [-f name] [-i path] [-x name] -o outpath script ...
+    print(("""usage:\t%s [-d] [-n] [-f name] [-i path] [-x name] -o outpath script ...
 where:
 -d\t\t: debug
 -n\t\t: dry run
@@ -31,7 +31,7 @@ where:
 -x name\t\t: exclude package by name.
 -o outpath\t: path to application bundle
 script\t\t: script(s) to process
-""" % basename(sys.argv[0])
+""" % basename(sys.argv[0])))
 
 
 def copylib(filename, leafname):
@@ -39,9 +39,9 @@ def copylib(filename, leafname):
     newfile = join(leafname.endswith('.dylib') and dylpath or respath, leafname)
     if not dryrun and isfile(newfile): return	# already done
     if debug:
-        print leafname, filename
+        print((leafname, filename))
     else:
-        print leafname
+        print(leafname)
 
     # fixup import name
     otool = subprocess.Popen(['otool', '-L', filename], stdout=subprocess.PIPE).communicate()[0].split("\n")
@@ -51,7 +51,7 @@ def copylib(filename, leafname):
     for line in otool:
         if '.dylib' in line and not line.startswith("\t/usr/lib"):
             depfile = line.split()[0]
-            if debug: print '\t%s' % depfile
+            if debug: print(('\t%s' % depfile))
             newdepfile = realpath(depfile)	# use most specific name so we don't have to bother with duplicates / symlinks
             if basename(newdepfile) == leafname:
                 change = ['-id', leafname] + change
@@ -75,8 +75,8 @@ def copylib(filename, leafname):
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "hdnf:o:i:x:")
-except getopt.GetoptError, e:
-    print str(e)
+except getopt.GetoptError as e:
+    print((str(e)))
     printhelp()
     exit(2)
 
@@ -103,7 +103,7 @@ if len(args)==0:
 script = args[0]
 
 if not outpath:
-    print 'Missing outpath'
+    print('Missing outpath')
     printhelp()
     exit(2)
 dylpath = join(outpath, 'Contents', 'MacOS')
@@ -123,28 +123,28 @@ mf.run_script(script)
 if debug: mf.report()
 
 if filtered:
-    modules = dict((k,v) for k,v in mf.modules.iteritems() if v.__file__ and k.startswith(filtered))
+    modules = dict((k,v) for k,v in list(mf.modules.items()) if v.__file__ and k.startswith(filtered))
 else:
     # only interested in site packages
-    modules = dict((k,v) for k,v in mf.modules.iteritems() if v.__file__ and sep+'site-packages'+sep in v.__file__)
+    modules = dict((k,v) for k,v in list(mf.modules.items()) if v.__file__ and sep+'site-packages'+sep in v.__file__)
 
 for k in sorted(modules.keys()):
-    if debug: print k, modules[k]
+    if debug: print((k, modules[k]))
     filename = modules[k].__file__
     leafname = modules[k].__path__ and join(k.replace('.',sep), '__init__.py') or filename[filename.rindex(k.replace('.',sep)):]
     newfile = join(respath, leafname)
     try:
         if not dryrun: os.makedirs(dirname(newfile))
-    except OSError, e:
+    except OSError as e:
         if e.errno == errno.EEXIST and isdir(dirname(newfile)): pass
         else: raise
     if newfile.endswith('.py'):
         if __debug__:	# non-optimized
-            print leafname
+            print(leafname)
             if not dryrun: shutil.copy2(filename, newfile)
         else:
             leafname += 'o'
-            print leafname
+            print(leafname)
             if not dryrun: py_compile.compile(filename, cfile=newfile+'o', dfile=leafname, doraise=True)
     elif newfile.endswith('.so'):
         copylib(filename, leafname)

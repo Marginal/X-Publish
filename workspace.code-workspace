@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../X-Plane 11"
+		},
+		{
+			"path": "../OverlayEditor"
+		},
+		{
+			"path": "../O4XP"
+		}
+	],
+	"settings": {}
+}

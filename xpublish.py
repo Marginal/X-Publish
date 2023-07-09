@@ -5,8 +5,9 @@ from os.path import basename, dirname, expanduser, exists, isdir, join, normpath
 import sys	# for path
 from sys import argv, exit, platform, getfilesystemencoding, version_info
 
+
 if platform.lower().startswith('linux') and not getenv("DISPLAY"):
-    print "Can't run: DISPLAY is not set"
+    print("Can't run: DISPLAY is not set")
     exit(1)
 
 try:
@@ -15,9 +16,9 @@ try:
     argv[0]=basename(argv[0])		# wx doesn't like non-ascii chars in argv[0]
     import wx
 except:
-    import Tkinter, tkMessageBox
-    Tkinter.Tk().withdraw()
-    tkMessageBox.showerror("Error", "wxPython is not installed.\nThis application requires wxPython 2.8 or later.")
+    import tkinter, tkinter.messagebox
+    tkinter.Tk().withdraw()
+    tkinter.messagebox.showerror("Error", "wxPython is not installed.\nThis application requires wxPython 2.8 or later.")
     exit(1)
 
 
@@ -45,7 +46,7 @@ class MyApp(wx.App):
     def activate(self, event):
         self.Unbind(wx.EVT_IDLE)
         if platform=='win32':
-            from _winreg import OpenKey, QueryValueEx, HKEY_CURRENT_USER, REG_SZ, REG_EXPAND_SZ
+            from winreg import OpenKey, QueryValueEx, HKEY_CURRENT_USER, REG_SZ, REG_EXPAND_SZ
             progs=getenv("PROGRAMFILES", '\\').decode('mbcs')
             for i in listdir(progs):
                 if i.lower().startswith("x-plane") and isdir(join(progs, i, "Custom Scenery")):
@@ -76,7 +77,7 @@ class MyApp(wx.App):
                 home=expanduser('~').decode(getfilesystemencoding() or 'utf-8')	# Unicode so paths listed as unicode
                 desktop=join(home, "Desktop")
             except:
-                home=desktop=u'/'
+                home=desktop='/'
             for i in listdir(desktop):
                 if i.lower().startswith("x-plane") and isdir(join(desktop, i, "Custom Scenery")):
                     folder=join(desktop, i)

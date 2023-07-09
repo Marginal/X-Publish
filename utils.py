@@ -4,7 +4,7 @@ from os.path import abspath, basename, dirname, join, normpath, sep
 from sys import exit
 import types
 import unicodedata
-from urllib import quote
+from urllib.parse import quote
 import wx
 
 from version import appname, appversion
@@ -42,15 +42,15 @@ def casepath(root, path):
 # 2.3 version of case-insensitive sort
 # 2.4-only version is faster: sort(cmp=lambda x,y: cmp(x.lower(), y.lower()))
 def sortfolded(seq):
-    seq.sort(lambda x,y: cmp(x.lower(), y.lower()))
+    seq.sort(key = lambda x: x.lower()) 
 
 
 # Turn 8-bit string into unicode
 def unicodeify(s):
     if type(s)==str:
-        return s.decode('latin_1')
+        return s
     else:
-        return unicodedata.normalize('NFC',s)
+        return s.decode()
 
 
 # View contents of file
@@ -60,7 +60,7 @@ def viewer(filename):
             os.startfile(filename)
         else:
             filename=abspath(filename)
-            if type(filename)==types.UnicodeType:
+            if type(filename)==str:
                 filename=filename.encode('utf-8')
             webbrowser.open("file:"+quote(filename))
     except:
@@ -75,7 +75,7 @@ def dosection(h, folder, files, dolink, doref, dolib, col, heading):
         h.write('      <th style="background-color: %s;"></th>\n' % col)
     h.write('    </tr>\n')
     
-    keys=files.keys()
+    keys=list(files.keys())
     sortfolded(keys)
     for key in keys:
         refs=files[key]
@@ -87,13 +87,13 @@ def dosection(h, folder, files, dolink, doref, dolib, col, heading):
             refstring=''
         else:
             sortfolded(refs)
-            refstring=(', '.join(['<a href="file:///%s">%s</a>' % (quote(join(folder,ref).encode('utf-8').replace('\\','/')), ref.encode('utf-8').replace('&','&amp;')) for ref in refs if ref!='?']))
+            refstring=(', '.join(['<a href="file:///%s">%s</a>' % (quote(join(folder,ref).replace('\\','/')), ref.replace('&','&amp;')) for ref in refs if ref!='?']))
         if dolib:
-            linkstring = '<a href="%s">%s</a>' % ('file:///'+quote(dolib[key].encode('utf-8').replace('\\','/')), basename(dirname(dolib[key])).encode('utf-8').replace('&','&amp;')) + ' : ' + key.encode('utf-8').replace('&','&amp;')
+            linkstring = '<a href="%s">%s</a>' % ('file:///'+quote(dolib[key].replace('\\','/')), basename(dirname(dolib[key])).replace('&','&amp;')) + ' : ' + key.replace('&','&amp;')
         elif dolink:
-            linkstring = '<a href="%s">%s</a>' % ('file:///'+quote(join(folder,key).encode('utf-8').replace('\\','/')), key.encode('utf-8').replace('&','&amp;'))
+            linkstring = '<a href="%s">%s</a>' % ('file:///'+quote(join(folder,key).replace('\\','/')), key.replace('&','&amp;'))
         else:
-            linkstring=key.encode('utf-8').replace('&','&amp;')
+            linkstring=key.replace('&','&amp;')
         h.write('    <tr>\n'
                 '      <td>%s</td>\n'
                 '      <td>%s</td>\n'
